@@ -1,0 +1,20 @@
+app/dependencies.py
+  h_ad46f83cd497b0 1-29
+app/repositories/user_repository.py
+  h_ad46f83cd497b0 44-50
+.env.example
+  h_ad46f83cd497b0 3
+app/controllers/auth_controller.py
+  h_ad46f83cd497b0 2,18,23-25,31
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "2084ad8996f0d7c089122ac89123030af66534db",
+  "prompts": {},
+  "humans": {
+    "h_ad46f83cd497b0": {
+      "author": "dante beltran <dbeltrannanziot@frba.utn.edu.ar>"
+    }
+  }
+}
