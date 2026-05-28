@@ -1,0 +1,46 @@
+Dockerfile
+  s_1d787880d6f5c2::t_c2d22f7bc8fff3 9-16
+  s_1d787880d6f5c2::t_7d8e064497b0ed 1-8,17-33
+app/database.py
+  h_ad46f83cd497b0 1-19
+README.md
+  s_1d787880d6f5c2::t_5b693696a29d16 229
+app/config.py
+  h_ad46f83cd497b0 1-31
+.env.example
+  h_ad46f83cd497b0 13
+  s_1d787880d6f5c2::t_a9e45a2e9209b1 1-12
+.gitignore
+  s_1d787880d6f5c2::t_ede7f6baed0682 152-153
+requirements-dev.txt
+  s_1d787880d6f5c2::t_ce0c9c477ec4c2 1-4
+docker-compose.yml
+  s_1d787880d6f5c2::t_01fed156e1964e 5-7
+  s_1d787880d6f5c2::t_acd6a5898b84ab 1-4,8-34
+requirements.txt
+  s_1d787880d6f5c2::t_6d9f781521d557 3
+  s_1d787880d6f5c2::t_323854cb235a22 1-2,4-9
+app/main.py
+  h_ad46f83cd497b0 1-7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "952da148dc0ad0553a57911719ee95ce7d51279c",
+  "prompts": {},
+  "humans": {
+    "h_ad46f83cd497b0": {
+      "author": "dante beltran <dbeltrannanziot@frba.utn.edu.ar>"
+    }
+  },
+  "sessions": {
+    "s_1d787880d6f5c2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "133e613d-b690-4af6-836a-0022ea1b8a36",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "dante beltran <dbeltrannanziot@frba.utn.edu.ar>"
+    }
+  }
+}
