@@ -1,0 +1,24 @@
+app/config.py
+  s_1d787880d6f5c2::t_8c1a37a7ae6d3d 4
+tests/test_auth_service.py
+  s_1d787880d6f5c2::t_55063c7528b216 1-188
+pytest.ini
+  s_1d787880d6f5c2::t_d6e88d6e08a55a 1-2
+  s_1d787880d6f5c2::t_7f30d11d5d40f1 3-4
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "bcab58466087c0515f9aa5fd8329bb957fe74dc8",
+  "prompts": {},
+  "sessions": {
+    "s_1d787880d6f5c2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "133e613d-b690-4af6-836a-0022ea1b8a36",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "dante beltran <dbeltrannanziot@frba.utn.edu.ar>"
+    }
+  }
+}
