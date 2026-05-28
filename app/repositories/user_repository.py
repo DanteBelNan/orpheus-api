@@ -41,3 +41,10 @@ class UserRepository:
         await self.db.commit()
         await self.db.refresh(user)
         return user
+    
+    #Given a user id, returns the user that matches it if exists
+    async def get_by_id(self, user_id: int) -> User | None:
+        result = await self.db.execute(
+            select(User).where(User.id == user_id)
+        )
+        return result.scalar_one_or_none()

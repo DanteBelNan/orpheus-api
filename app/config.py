@@ -19,8 +19,6 @@ class Settings(BaseSettings):
     secret_key: str
     jwt_expire_hours: int = 12
 
-    #FE
-    frontend_url: str = "http://localhost:5173"
 
     @property
     def database_url(self) -> str:

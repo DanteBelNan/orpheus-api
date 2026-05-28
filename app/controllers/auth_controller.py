@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from fastapi.responses import RedirectResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
@@ -15,18 +15,20 @@ async def get_user_repository(db: AsyncSession = Depends(get_db)) -> UserReposit
 async def get_auth_service(repo: UserRepository = Depends(get_user_repository)) -> AuthService:
     return AuthService(repo)
 
+#We redirect to the spotify login sendint them to our callback 
 @router.get("/login")
 async def login(service: AuthService = Depends(get_auth_service)):
     return RedirectResponse(url=service.get_login_url())
 
-@router.get("/callback")
-async def callback(
+#Exchange Spotify code for JWT and set httpOnly cookie
+@router.get("/exchange")
+async def exchange(
     code: str,
     service: AuthService = Depends(get_auth_service)
 ):
     jwt_token, _ = await service.handle_callback(code)
 
-    response = RedirectResponse(url=f"{settings.frontend_url}/home")
+    response = JSONResponse(content={"message": "Authenticated successfully"})
     response.set_cookie(
         key="access_token",
         value=jwt_token,
