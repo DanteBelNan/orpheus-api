@@ -103,7 +103,8 @@ Devuelve el detalle de un dispositivo específico por su MAC address.
 Registra una Raspberry Pi bajo la cuenta de un usuario.
 - **Auth:** sesión de usuario requerida
 - **Request:** `{ "device_id": "b8:27:eb:xx:xx:xx", "name": "Orpheus #1" }`
-- **Respuesta:** `{ "id": 1, "device_id": "...", "name": "..." }`
+- **Respuesta:** `{ "id": 1, "device_id": "...", "name": "..." }` → 201
+- **Respuesta (device ya registrado):** 409
 
 #### `POST /devices/heartbeat`
 Llamado por la Pi en cada arranque. Actualiza `last_seen` y refresca el `spotify_device_id` consultando la lista de dispositivos activos en Spotify.

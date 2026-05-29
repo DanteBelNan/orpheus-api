@@ -15,12 +15,23 @@ All notable changes to the Orpheus API are documented here.
 ## [Unreleased]
 
 ---
+## [0.3.0] - 2026-05-29
+
+### Added
+- `app/exceptions/device_exception.py` — domain exceptions layer:
+  `DeviceAlreadyRegisteredError`, `DeviceNotFoundError`
+- `app/controllers/device_controller.py` — tres endpoints:
+  `GET /devices/` (lista devices del usuario autenticado),
+  `GET /devices/{device_id}` (detalle por MAC address, 404 si no existe),
+  `POST /devices/` (registra device, 409 si ya existe)
+- Device router registrado en `app/main.py`
+---
 
 ## [0.2.1] - 2026-05-29
 
 ### Added
 - `app/models/device.py` — SQLAlchemy Device model (`devices` table) con FK a `users`
-- `app/dtos/device_dto.py` — Pydantic DTOs: `DeviceResponse` (con `from_attributes=True`), `GetDevices`
+- `app/dtos/device_dto.py` — Pydantic DTOs: `DeviceResponse` (con `from_attributes=True`), `DevicesListResponse`
 - `app/repositories/device_repository.py` — `insert`, `get_by_user_id`, `get_by_device_id`
 - `app/services/device_service.py` — `create_device`, `get_devices_by_user_id`, `get_device_by_id`
 - `GET /devices/` — lista todos los dispositivos del usuario autenticado (documentado en README)

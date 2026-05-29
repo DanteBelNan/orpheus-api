@@ -14,9 +14,13 @@ class DeviceResponse(BaseModel):
 
 
 
-class GetDevices(BaseModel):
+class DevicesListResponse(BaseModel):
     devices: list[DeviceResponse]
     amount: int
+
+class DeviceRegisterRequest(BaseModel):
+    device_id: str
+    name: str
 
 
 
