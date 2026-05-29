@@ -1,0 +1,38 @@
+tests/test_device_service.py
+  s_1d787880d6f5c2::t_6ad076e925cffb 1-124
+app/exceptions/device_exception.py
+  h_ad46f83cd497b0 1-5
+README.md
+  s_1d787880d6f5c2::t_c31cff8566bbef 106-107
+app/services/device_service.py
+  h_ad46f83cd497b0 2-3,11,13,21-22,27-30
+app/controllers/device_controller.py
+  h_ad46f83cd497b0 3,8-11,21-27,29-59
+app/dtos/device_dto.py
+  h_ad46f83cd497b0 17,21-24
+CHANGELOG.md
+  h_ad46f83cd497b0 18-27,34
+app/main.py
+  h_ad46f83cd497b0 3,12
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "a217a81f1bef13fa80f55c5ca5d05947cce86aff",
+  "prompts": {},
+  "humans": {
+    "h_ad46f83cd497b0": {
+      "author": "dante beltran <dbeltrannanziot@frba.utn.edu.ar>"
+    }
+  },
+  "sessions": {
+    "s_1d787880d6f5c2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "133e613d-b690-4af6-836a-0022ea1b8a36",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "dante beltran <dbeltrannanziot@frba.utn.edu.ar>"
+    }
+  }
+}
