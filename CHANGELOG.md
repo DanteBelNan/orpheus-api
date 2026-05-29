@@ -16,6 +16,19 @@ All notable changes to the Orpheus API are documented here.
 
 ---
 
+## [0.2.1] - 2026-05-29
+
+### Added
+- `app/models/device.py` — SQLAlchemy Device model (`devices` table) con FK a `users`
+- `app/dtos/device_dto.py` — Pydantic DTOs: `DeviceResponse` (con `from_attributes=True`), `GetDevices`
+- `app/repositories/device_repository.py` — `insert`, `get_by_user_id`, `get_by_device_id`
+- `app/services/device_service.py` — `create_device`, `get_devices_by_user_id`, `get_device_by_id`
+- `GET /devices/` — lista todos los dispositivos del usuario autenticado (documentado en README)
+- `GET /devices/{device_id}` — detalle de un dispositivo por MAC address (documentado en README)
+- `POST /devices/` — registro de un nuevo dispositivo (documentado en README)
+
+---
+
 ## [0.2.0] - 2026-05-28
 
 ### Added

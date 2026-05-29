@@ -88,13 +88,24 @@ Spotify redirige aquí tras la aprobación del usuario.
 
 ### Device
 
-#### `POST /device/register`
+#### `GET /devices/`
+Devuelve todos los dispositivos registrados bajo el usuario autenticado.
+- **Auth:** sesión de usuario requerida
+- **Respuesta:** `{ "devices": [{ "id": 1, "device_id": "...", "name": "...", "last_seen": "...", "spotify_device_id": "..." }], "amount": 1 }`
+
+#### `GET /devices/{device_id}`
+Devuelve el detalle de un dispositivo específico por su MAC address.
+- **Auth:** sesión de usuario requerida
+- **Respuesta:** `{ "id": 1, "device_id": "b8:27:eb:xx:xx:xx", "name": "...", "last_seen": "...", "spotify_device_id": "..." }` → 200
+- **Respuesta (no encontrado):** 404
+
+#### `POST /devices/`
 Registra una Raspberry Pi bajo la cuenta de un usuario.
 - **Auth:** sesión de usuario requerida
 - **Request:** `{ "device_id": "b8:27:eb:xx:xx:xx", "name": "Orpheus #1" }`
 - **Respuesta:** `{ "id": 1, "device_id": "...", "name": "..." }`
 
-#### `POST /device/heartbeat`
+#### `POST /devices/heartbeat`
 Llamado por la Pi en cada arranque. Actualiza `last_seen` y refresca el `spotify_device_id` consultando la lista de dispositivos activos en Spotify.
 - **Request:** `{ "device_id": "b8:27:eb:xx:xx:xx" }`
 - **Respuesta:** `{ "status": "ok", "spotify_device_id": "abc123" }`
