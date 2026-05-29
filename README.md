@@ -75,14 +75,14 @@ Redirige al usuario a la página de autorización de Spotify.
 - **Scopes solicitados:** `user-read-email`, `user-read-playback-state`, `user-modify-playback-state`, `streaming`
 - **Respuesta:** 302 redirect a Spotify
 
-#### `GET /auth/callback?code=...`
+#### `GET /auth/exchange?code=...`
 Spotify redirige aquí tras la aprobación del usuario.
 - Intercambia el `code` por `access_token` + `refresh_token`
 - Llama a `GET /v1/me` de Spotify para obtener `spotify_user_id` y `email`
 - **Upsert** en tabla `users`: crea el usuario si es nuevo, actualiza tokens si ya existe
 - Genera un **JWT** firmado con `SECRET_KEY` conteniendo `{ user_id, exp }`
 - Setea el JWT como cookie `httpOnly` + `Secure`
-- **Respuesta:** 302 redirect al frontend `/home`
+- **Respuesta:** nos trae la cookie para que la agreguemos desde nuestro frontend
 
 ---
 
