@@ -1,0 +1,132 @@
+name: Unit Tests
+
+on:
+  push:
+    branches:
+      - master
+      - develop
+  pull_request:
+    branches:
+      - master
+      - develop
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: orpheus_test
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+        ports:
+          - 3306:3306
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+
+      - name: Run unit tests with coverage
+        env:
+          MYSQL_HOST: localhost
+          MYSQL_PORT: 3306
+          MYSQL_USER: root
+          MYSQL_PASSWORD: root
+          MYSQL_DATABASE: orpheus_test
+          SPOTIFY_CLIENT_ID: test_id
+          SPOTIFY_CLIENT_SECRET: test_secret
+          SPOTIFY_REDIRECT_URI: http://localh
+          SECRET_KEY: test_secret_key
+        run: |
+          pytest --cov=app --cov-report=term-with-missing --cov-report=html
+
+      - name: Upload coverage reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: htmlcov/
+
+
+  # TODO: Build & Push Docker Image to AWS ECR
+  # Uncomment, mover a un archivo designado y adaptar cuando esté listo el registry
+  #
+  # build-and-push:
+  #   needs: test
+  #   runs-on: ubuntu-latest
+  #   if: github.ref == 'refs/heads/master' && success()
+  #
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #
+  #     - name: Configure AWS credentials
+  #       uses: aws-actions/configure-aws-credentials@v4
+  #       with:
+  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  #         aws-region: us-east-1  # Adaptar a tu región
+  #
+  #     - name: Login to Amazon ECR
+  #       id: login-ecr
+  #       uses: aws-actions/amazon-ecr-login@v2
+  #
+  #     - name: Build and Push Docker Image
+  #       env:
+  #         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+  #         ECR_REPOSITORY: orpheus-api
+  #         IMAGE_TAG: ${{ github.sha }}
+  #       run: |
+  #         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+  #         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+  #         # Tag as latest también
+  #         docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
+  #         docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+  #
+  #  # TODO: Trigger EC2 Deployment via SSH
+  #  # Uncomment cuando tengas el acceso SSH configurado
+  #  #
+  #  # deploy-to-ec2:
+  #  #   needs: build-and-push
+  #  #   runs-on: ubuntu-latest
+  #  #   if: github.ref == 'refs/heads/master' && success()
+  #  #
+  #  #   steps:
+  #  #     - name: Deploy to EC2
+  #  #       env:
+  #  #         EC2_HOST: ${{ secrets.EC2_HOST }}
+  #  #         EC2_USER: ${{ secrets.EC2_USER }}
+  #  #         EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+  #  #       run: |
+  #  #         mkdir -p ~/.ssh
+  #  #         echo "$EC2_SSH_KEY" > ~/.ssh/deploy_key
+  #  #         chmod 600 ~/.ssh/deploy_key
+  #  #         ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
+  #  #           $EC2_USER@$EC2_HOST \
+  #  #           "cd /path/to/orpheus && \
+  #  #            aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }} && \
+  #  #            docker pull ${{ secrets.ECR_REGISTRY }}/orpheus-api:latest && \
+  #  #            docker-compose up -d"
+  #  #
+  #  # NOTA: Self-Hosted Alternative (Recomendado)
+  #  # ============================================
+  #  # En lugar de SSH manual, considera usar un self-hosted runner en tu infraestructura:
+  #  # - Registrá un self-hosted runner en el EC2: https://docs.github.com/en/actions/hosting-your-own-runners
+  #  # - En el workflow, usa: runs-on: [self-hosted]
+  #  # - El runner ejecuta el deployment directamente sin necesidad de SSH
+  #  # Ventaja: mejor integración, más seguridad, control total del entorno

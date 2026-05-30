@@ -11,8 +11,17 @@ All notable changes to the Orpheus API are documented here.
 | `2.0.0` | First production-ready release |
 
 ---
-
 ## [Unreleased]
+---
+## [0.3.4] - 2026-05-30
+
+### Added
+- `.github/workflows/unit-tests.yml` — GitHub Actions workflow para ejecutar
+  unit tests en cada push/PR hacia master, main o develop. Incluye:
+  - Servicio MySQL en el workflow para tests de integración
+  - Reporte de cobertura con pytest-cov (HTML artifact)
+  - Comentarios de referencia para segunda fase: Docker build → ECR push → EC2
+    deploy via SSH (self-hosted runner como alternativa recomendada)
 
 --- 
 ## [0.3.3] - 2026-05-30
