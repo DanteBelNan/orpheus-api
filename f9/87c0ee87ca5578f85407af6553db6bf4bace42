@@ -1,0 +1,20 @@
+app/exceptions/base_exception.py
+  h_ad46f83cd497b0 15-18
+app/dtos/vinyl_dto.py
+  h_ad46f83cd497b0 1-28
+CHANGELOG.md
+  h_ad46f83cd497b0 15-23
+app/exceptions/vinyl_exception.py
+  h_ad46f83cd497b0 1-9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "f987c0ee87ca5578f85407af6553db6bf4bace42",
+  "prompts": {},
+  "humans": {
+    "h_ad46f83cd497b0": {
+      "author": "dante beltran <dbeltrannanziot@frba.utn.edu.ar>"
+    }
+  }
+}
