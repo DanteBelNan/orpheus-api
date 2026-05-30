@@ -1,0 +1,16 @@
+CHANGELOG.md
+  h_ad46f83cd497b0 15-24
+.github/workflows/unit-tests.yml
+  h_ad46f83cd497b0 1-132
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "8a1cba8c2f3492e857ab5d00ebb6357f87d22e87",
+  "prompts": {},
+  "humans": {
+    "h_ad46f83cd497b0": {
+      "author": "dante beltran <dbeltrannanziot@frba.utn.edu.ar>"
+    }
+  }
+}
