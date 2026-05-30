@@ -1,0 +1,34 @@
+app/controllers/device_controller.py
+  h_ad46f83cd497b0 4,6-8,11,13,15,24-27,31,33
+app/services/spotify_service.py
+  h_ad46f83cd497b0 1-56
+app/services/device_service.py
+  h_ad46f83cd497b0 6,9,12,47-48
+tests/test_device_service.py
+  s_1d787880d6f5c2::t_1a4d3ff69332d8 1-2,30-38,42,172,175-176,183,186-187
+tests/test_spotify_service.py
+  s_1d787880d6f5c2::t_aca7412de3a014 1-146
+CHANGELOG.md
+  h_ad46f83cd497b0 17-38,41,58,67
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "147ef7e03a36d4ade29ce431a262a678b444cdeb",
+  "prompts": {},
+  "humans": {
+    "h_ad46f83cd497b0": {
+      "author": "dante beltran <dbeltrannanziot@frba.utn.edu.ar>"
+    }
+  },
+  "sessions": {
+    "s_1d787880d6f5c2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "133e613d-b690-4af6-836a-0022ea1b8a36",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "dante beltran <dbeltrannanziot@frba.utn.edu.ar>"
+    }
+  }
+}
