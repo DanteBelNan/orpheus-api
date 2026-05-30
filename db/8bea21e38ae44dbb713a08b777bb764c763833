@@ -1,0 +1,26 @@
+app/exceptions/spotify_exception.py
+  h_ad46f83cd497b0 1-5
+CHANGELOG.md
+  h_ad46f83cd497b0 17-32
+app/services/device_service.py
+  h_ad46f83cd497b0 4,10,61,73,84-85,89,101,103-104
+app/exceptions/base_exception.py
+  h_ad46f83cd497b0 10-13
+app/controllers/auth_controller.py
+  h_ad46f83cd497b0 1,9,30,42-43
+app/controllers/device_controller.py
+  h_ad46f83cd497b0 1,11,74-75
+app/services/auth_service.py
+  h_ad46f83cd497b0 9,31,50-52,55,67-68
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "db8bea21e38ae44dbb713a08b777bb764c763833",
+  "prompts": {},
+  "humans": {
+    "h_ad46f83cd497b0": {
+      "author": "dante beltran <dbeltrannanziot@frba.utn.edu.ar>"
+    }
+  }
+}
