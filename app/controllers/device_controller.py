@@ -1,6 +1,5 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import HTTPException
 
 from app.database import get_db
 from app.repositories.device_repository import DeviceRepository
@@ -9,7 +8,7 @@ from app.services.device_service import DeviceService
 from app.dtos.device_dto import DeviceRegisterRequest, DeviceResponse, DevicesListResponse, DeviceHeartbeatResponse, DeviceHeartbeatRequest
 from app.dependencies import get_current_user
 from app.models.user import User
-from app.exceptions.base_exception import NotFoundError, AlreadyExistsError
+from app.exceptions.base_exception import NotFoundError, AlreadyExistsError, ExternalServiceError
 
 router = APIRouter(prefix="/devices", tags=["Device"])
 
@@ -72,3 +71,5 @@ async def heartbeat(
         return await service.process_heartbeat(device_id=body.device_id)
     except NotFoundError as e:
         raise HTTPException(status_code=404,detail=str(e))
+    except ExternalServiceError as e:
+        raise HTTPException(status_code=502,detail=str(e))

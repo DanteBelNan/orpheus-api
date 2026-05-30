@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import JSONResponse, RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -6,6 +6,7 @@ from app.config import settings
 from app.database import get_db
 from app.repositories.user_repository import UserRepository
 from app.services.auth_service import AuthService
+from app.exceptions.base_exception import ExternalServiceError
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
@@ -26,14 +27,17 @@ async def exchange(
     code: str,
     service: AuthService = Depends(get_auth_service)
 ):
-    jwt_token, _ = await service.handle_callback(code)
+    try:
+        jwt_token, _ = await service.handle_callback(code)
 
-    response = JSONResponse(content={"message": "Authenticated successfully"})
-    response.set_cookie(
-        key="access_token",
-        value=jwt_token,
-        httponly=True,
-        samesite="lax",
-        max_age=settings.jwt_expire_hours * 3600,
-    )
-    return response
+        response = JSONResponse(content={"message": "Authenticated successfully"})
+        response.set_cookie(
+            key="access_token",
+            value=jwt_token,
+            httponly=True,
+            samesite="lax",
+            max_age=settings.jwt_expire_hours * 3600,
+        )
+        return response
+    except ExternalServiceError as e:
+        raise HTTPException(status_code=502, detail=str(e))

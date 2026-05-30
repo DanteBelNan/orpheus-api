@@ -14,6 +14,22 @@ All notable changes to the Orpheus API are documented here.
 
 ## [Unreleased]
 
+--- 
+## [0.3.1] - 2026-05-30
+### Added
+- `app/exceptions/base_exception.py` — `ExternalServiceError` con mensaje
+  parametrizado `"{service} error: {detail}"`
+- `app/exceptions/spotify_exception.py` — `SpotifyError(ExternalServiceError)`
+  para todos los fallos de comunicación con la API de Spotify
+
+### Changed
+- `auth_service.py` — `exchange_code` y `get_spotify_user` ahora capturan
+  `httpx.HTTPStatusError` y re-lanzan `SpotifyError`
+- `auth_controller.py` — `/exchange` captura `ExternalServiceError` → 502
+- `device_service.py` — `_ensure_fresh_token` y `_get_spotify_device_id`
+  siguen el mismo patrón con `SpotifyError`
+- `device_controller.py` — `/heartbeat` captura `ExternalServiceError` → 502 
+
 ---
 ## [0.3.0] - 2026-05-29
 ### Added

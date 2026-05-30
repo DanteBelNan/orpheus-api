@@ -6,6 +6,7 @@ from jose import jwt
 from app.config import settings
 from app.repositories.user_repository import UserRepository
 from app.dtos.user_dto import SpotifyTokenData, SpotifyUserData, UserResponse
+from app.exceptions.spotify_exception import SpotifyError
 
 SPOTIFY_AUTH_URL = "https://accounts.spotify.com/authorize"
 SPOTIFY_TOKEN_URL = "https://accounts.spotify.com/api/token"
@@ -27,39 +28,44 @@ class AuthService:
         return f"{SPOTIFY_AUTH_URL}?{urlencode(params)}"
     
     async def exchange_code(self, code: str) -> SpotifyTokenData:
-        async with httpx.AsyncClient() as client:
-            response = await client.post(
-                SPOTIFY_TOKEN_URL,
-                data={
-                    "grant_type": "authorization_code",
-                    "code": code,
-                    "redirect_uri": settings.spotify_redirect_uri,
-                },
-                headers={"Content-Type": "application/x-www-form-urlencoded"},
-                auth=(settings.spotify_client_id, settings.spotify_client_secret),
-            )
-            response.raise_for_status()
-            data = response.json()
-            return SpotifyTokenData(
-                access_token=data["access_token"],
-                refresh_token=data["refresh_token"],
-                expires_in=data["expires_in"],
-            )
-    
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.post(
+                    SPOTIFY_TOKEN_URL,
+                    data={
+                        "grant_type": "authorization_code",
+                        "code": code,
+                        "redirect_uri": settings.spotify_redirect_uri,
+                    },
+                    headers={"Content-Type": "application/x-www-form-urlencoded"},
+                    auth=(settings.spotify_client_id, settings.spotify_client_secret),
+                )
+                response.raise_for_status()
+                data = response.json()
+                return SpotifyTokenData(
+                    access_token=data["access_token"],
+                    refresh_token=data["refresh_token"],
+                    expires_in=data["expires_in"],
+                )
+        except httpx.HTTPStatusError:
+            raise SpotifyError("Failed to exchange authorization code")
+        
     #Calls GET /v1/me of Spotify API to get email and id of user
     async def get_spotify_user(self, access_token: str) -> SpotifyUserData:
-        async with httpx.AsyncClient() as client:
-            response = await client.get(
-                SPOTIFY_ME_URL,
-                headers={"Authorization": f"Bearer {access_token}"}
-            )
-            response.raise_for_status()
-            data = response.json()
-            return SpotifyUserData(
-                spotify_user_id=data["id"],
-                email=data["email"],
-            )
-    
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.get(
+                    SPOTIFY_ME_URL,
+                    headers={"Authorization": f"Bearer {access_token}"}
+                )
+                response.raise_for_status()
+                data = response.json()
+                return SpotifyUserData(
+                    spotify_user_id=data["id"],
+                    email=data["email"],
+                )
+        except httpx.HTTPStatusError:
+            raise SpotifyError("Failed to retrieve user profile")
     #Handles all the previous methods, upserting in db and generates jwt
     async def handle_callback(self, code: str) -> tuple[str, UserResponse]:
         token_data = await self.exchange_code(code)
