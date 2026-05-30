@@ -31,6 +31,16 @@ jobs:
           pip install -r requirements-dev.txt
 
       - name: Run unit tests with coverage
+        env:
+          SPOTIFY_CLIENT_ID: test_client_id
+          SPOTIFY_CLIENT_SECRET: test_client_secret
+          SPOTIFY_REDIRECT_URI: http://localhost:8000/auth/callback
+          MYSQL_HOST: localhost
+          MYSQL_PORT: 3306
+          MYSQL_USER: test_user
+          MYSQL_PASSWORD: test_password
+          MYSQL_DATABASE: test_db
+          SECRET_KEY: test_secret_key
         run: |
           pytest --cov=app --cov-report=term-missing --cov-report=html
 
