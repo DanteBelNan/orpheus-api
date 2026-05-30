@@ -13,6 +13,15 @@ All notable changes to the Orpheus API are documented here.
 ---
 ## [Unreleased]
 ---
+## [0.3.5] - 2026-05-30
+### Added
+- `app/exceptions/base_exception.py` — `ForbiddenError` con mensaje
+  parametrizado: "{entity} with id '{id}' cannot be modified by user '{user_id}'"
+- `app/exceptions/vinyl_exception.py` — `VinylNotFoundError`, `VinylForbiddenError`
+- `app/dtos/vinyl_dto.py` — `VinylResponse` (con `@computed_field status`
+  derivado de `spotify_uri`), `VinylListResponse`, `VinylUpdateRequest`
+  
+---
 ## [0.3.4] - 2026-05-30
 
 ### Added
