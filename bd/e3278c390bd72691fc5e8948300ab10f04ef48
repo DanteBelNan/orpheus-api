@@ -1,0 +1,30 @@
+app/dtos/device_dto.py
+  h_ad46f83cd497b0 25-26,28-30
+app/exceptions/user_exception.py
+  h_ad46f83cd497b0 1-5
+app/exceptions/device_exception.py
+  h_ad46f83cd497b0 1,3-5,7-9
+app/repositories/device_repository.py
+  h_ad46f83cd497b0 41-52
+app/services/device_service.py
+  h_ad46f83cd497b0 2,5,8,10,24,31,36-44
+app/exceptions/base_exception.py
+  h_ad46f83cd497b0 1-9
+CHANGELOG.md
+  h_ad46f83cd497b0 18-37,39
+app/repositories/user_repository.py
+  h_ad46f83cd497b0 51-62
+app/controllers/device_controller.py
+  h_ad46f83cd497b0 11,35-36,57-58
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "bde3278c390bd72691fc5e8948300ab10f04ef48",
+  "prompts": {},
+  "humans": {
+    "h_ad46f83cd497b0": {
+      "author": "dante beltran <dbeltrannanziot@frba.utn.edu.ar>"
+    }
+  }
+}
