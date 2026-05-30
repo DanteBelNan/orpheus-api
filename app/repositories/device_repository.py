@@ -27,7 +27,7 @@ class DeviceRepository:
         return device
     
     #Receives all the devices from a user
-    async def get_by_user_id(self, user_id: int) -> list[Device]:
+    async def get_by_user_id(self, user_id: int) -> list[Device]: #this wont need pagination, a user will never have an excesive amount of devices
         results = await self.db.execute(
             select(Device).where(Device.user_id == user_id)
         )

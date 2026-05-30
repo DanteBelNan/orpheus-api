@@ -63,6 +63,7 @@ Recursos de Spotify (álbumes o playlists) precargados por el usuario. Usados co
 | album_name | VARCHAR(255) nullable | Populado al asignar el álbum |
 | album_art_url | TEXT nullable | Populado al asignar el álbum |
 | created_at | DATETIME | |
+| last_played | DATETIME | |
 
 ---
 
@@ -242,6 +243,26 @@ Documentación automática en `http://localhost:8000/docs`
 
 ---
 
+## Post-MVP: Historial de Asignaciones de Vinilos
+
+Cada vez que un usuario configura o reconfigura un vinilo (vía `PATCH /vinyls/{id}`), el sistema podría registrar un historial de cambios en una tabla `vinyl_history`. Esto permitiría saber qué álbum estuvo asignado a un vinilo en cada momento, quién lo cambió y cuándo.
+
+Esquema tentativo de la tabla:
+
+| Column | Type | Notes |
+|---|---|---|
+| id | INT PK | |
+| vinyl_id | INT FK → vinyls.id | |
+| changed_by | INT FK → users.id | |
+| previous_spotify_uri | VARCHAR(255) nullable | URI anterior, NULL si es la primera asignación |
+| new_spotify_uri | VARCHAR(255) | URI nueva asignada |
+| changed_at | DATETIME | |
+
+El repository de vinyls ya tiene un comentario reservado para esta funcionalidad en el método `update`. La implementación consistiría en insertar un registro en `vinyl_history` dentro del mismo `update`, antes del commit.
+
+---
+
 ## Post-MVP: Servicio de Notificaciones por Email
 
 Cuando `/play` registra un tag nuevo (201), publicará un evento asincrónico para notificar al `created_by` por email. El mecanismo concreto de cola/worker queda a definir (opciones: background tasks nativas de FastAPI, Redis pub/sub, u otro mecanismo liviano), pero el contrato es claro: la API principal no bloquea la respuesta a la Pi esperando el envío del email. El worker consume el evento de forma independiente y envía via AWS SES o SendGrid con el mensaje: *"Detectamos un nuevo mini-vinilo en tu dispositivo Orpheus. Ingresá a la plataforma cuando quieras para asociarle tu álbum favorito."*
+

@@ -14,6 +14,22 @@ All notable changes to the Orpheus API are documented here.
 
 ## [Unreleased]
 
+--- 
+## [0.3.3] - 2026-05-30
+
+### Added
+- `app/models/vinyl.py` — modelo SQLAlchemy Vinyl con `tag_id` (UID hardware,
+  UNIQUE), `created_by` (FK → users), campos nullable para configuración
+  (`name`, `spotify_uri`, `album_name`, `album_art_url`) y `last_played`
+  (datetime nullable, para tracking futuro de reproducciones)
+- `app/repositories/vinyl_repository.py` — `get_by_id`, `get_by_tag_id`,
+  `get_all` (con filtros opcionales `created_by` y `status` via query
+  incremental), `create` (nombre opcional para registro desde Pi),
+  `update` (via `setattr` + `**fields` para actualización parcial),
+  `delete`
+- README: sección Post-MVP con historial de asignaciones de vinilos
+  (`vinyl_history`) y esquema tentativo de tabla
+
 ---
 ## [0.3.2] - 2026-05-30
 
