@@ -4,29 +4,17 @@ on:
   push:
     branches:
       - master
+      - main
       - develop
   pull_request:
     branches:
       - master
+      - main
       - develop
 
 jobs:
   test:
     runs-on: ubuntu-latest
-
-    services:
-      mysql:
-        image: mysql:8.0
-        env:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: orpheus_test
-        options: >-
-          --health-cmd="mysqladmin ping"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=3
-        ports:
-          - 3306:3306
 
     steps:
       - uses: actions/checkout@v4
@@ -43,18 +31,8 @@ jobs:
           pip install -r requirements-dev.txt
 
       - name: Run unit tests with coverage
-        env:
-          MYSQL_HOST: localhost
-          MYSQL_PORT: 3306
-          MYSQL_USER: root
-          MYSQL_PASSWORD: root
-          MYSQL_DATABASE: orpheus_test
-          SPOTIFY_CLIENT_ID: test_id
-          SPOTIFY_CLIENT_SECRET: test_secret
-          SPOTIFY_REDIRECT_URI: http://localh
-          SECRET_KEY: test_secret_key
         run: |
-          pytest --cov=app --cov-report=term-with-missing --cov-report=html
+          pytest --cov=app --cov-report=term-missing --cov-report=html
 
       - name: Upload coverage reports
         if: always()
@@ -63,9 +41,8 @@ jobs:
           name: coverage-report
           path: htmlcov/
 
-
   # TODO: Build & Push Docker Image to AWS ECR
-  # Uncomment, mover a un archivo designado y adaptar cuando esté listo el registry
+  # Uncomment y adaptar cuando esté listo el registry
   #
   # build-and-push:
   #   needs: test
@@ -94,7 +71,6 @@ jobs:
   #       run: |
   #         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
   #         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-  #         # Tag as latest también
   #         docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
   #         docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
   #
@@ -125,7 +101,7 @@ jobs:
   #  #
   #  # NOTA: Self-Hosted Alternative (Recomendado)
   #  # ============================================
-  #  # En lugar de SSH manual, considera usar un self-hosted runner en tu infraestructura:
+  #  # En lugar de SSH manual, considera usar un self-hosted runner en infraestructura propia:
   #  # - Registrá un self-hosted runner en el EC2: https://docs.github.com/en/actions/hosting-your-own-runners
   #  # - En el workflow, usa: runs-on: [self-hosted]
   #  # - El runner ejecuta el deployment directamente sin necesidad de SSH
