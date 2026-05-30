@@ -1,0 +1,26 @@
+.github/workflows/unit-tests.yml
+  h_ad46f83cd497b0 34-43
+tests/conftest.py
+  s_77c2e84698fd6e::t_eb6bbe225cf5b2 1-16
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "2a41a86af8e2a08f9af32614a58bf2caca1951b8",
+  "prompts": {},
+  "humans": {
+    "h_ad46f83cd497b0": {
+      "author": "dante beltran <dbeltrannanziot@frba.utn.edu.ar>"
+    }
+  },
+  "sessions": {
+    "s_77c2e84698fd6e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2c4931c1-dbff-4d37-a27e-ad957db7541a",
+        "model": "claude-haiku-4-5-20251001"
+      },
+      "human_author": "dante beltran <dbeltrannanziot@frba.utn.edu.ar>"
+    }
+  }
+}
