@@ -1,18 +1,15 @@
-import httpx
-from datetime import datetime, timedelta
-
-from app.config import settings
 from app.repositories.device_repository import DeviceRepository
 from app.repositories.user_repository import UserRepository
 from app.dtos.device_dto import DeviceResponse, DevicesListResponse, DeviceHeartbeatResponse
 from app.exceptions.device_exception import DeviceAlreadyRegisteredError, DeviceNotFoundError
 from app.exceptions.user_exception import UserNotFoundError
-from app.exceptions.spotify_exception import SpotifyError
+from app.services.spotify_service import SpotifyService
 
 class DeviceService:
-    def __init__(self, device_repository: DeviceRepository, user_repository: UserRepository):
+    def __init__(self, device_repository: DeviceRepository, user_repository: UserRepository, spotify_service: SpotifyService):
         self.device_repository = device_repository
         self.user_repository = user_repository
+        self.spotify_service = spotify_service
 
     #Retrieves all the devices of a user
     async def get_devices_by_user_id(self, user_id: int) -> DevicesListResponse:
@@ -47,58 +44,11 @@ class DeviceService:
         if user is None:
             raise UserNotFoundError(device.user_id) 
 
-        access_token = await self._ensure_fresh_token(user)
-        spotify_device_id = await self._get_spotify_device_id(access_token,device.name)
+        access_token = await self.spotify_service.ensure_fresh_token(user)
+        spotify_device_id = await self.spotify_service.get_spotify_device_id(access_token,device.name)
         await self.device_repository.update_heartbeat(device_id,spotify_device_id)
 
         return DeviceHeartbeatResponse(
             status="ok",
             spotify_device_id=spotify_device_id
         )
-
-    #checks if the token of the user is fresh, if not, refreshes it with the db
-    async def _ensure_fresh_token(self, user) -> str: #this may need to be a dependencie in all the endpoints that connects with raspberry
-        try:
-            now = datetime.utcnow()
-            if user.token_expires_at - timedelta(seconds=60) <= now:
-                async with httpx.AsyncClient() as client:
-                    response = await client.post(
-                        "https://accounts.spotify.com/api/token",
-                        data={
-                            "grant_type": "refresh_token",
-                            "refresh_token": user.spotify_refresh_token,
-                        },
-                        headers={"Content-Type": "application/x-www-form-urlencoded"},
-                        auth=(settings.spotify_client_id, settings.spotify_client_secret),
-                    )
-                    response.raise_for_status()
-                    data = response.json()
-                new_expires_at = datetime.utcnow() + timedelta(seconds=data["expires_in"])
-                await self.user_repository.update_tokens(
-                    user_id=user.id,
-                    access_token=data["access_token"],
-                    token_expires_at=new_expires_at,
-                )
-                return data["access_token"]
-            return user.spotify_access_token
-        except httpx.HTTPStatusError:
-            raise SpotifyError("Failed to refresh access token")
-    
-    #gets the spotify_device_id from the device
-    async def  _get_spotify_device_id(self, access_token: str, device_name: str) -> str | None:
-        try:
-            async with httpx.AsyncClient() as client:
-                response = await client.get(
-                    "https://api.spotify.com/v1/me/player/devices",
-                    headers={"Authorization": f"Bearer {access_token}"},
-                )
-                response.raise_for_status()
-                data = response.json()
-
-            for spotify_device in data.get("devices", []):
-                if spotify_device["name"] == device_name:
-                    return spotify_device["id"]
-                
-            return None
-        except httpx.HTTPStatusError:
-            raise SpotifyError("Failed to get spotify device id")

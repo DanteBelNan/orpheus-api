@@ -1,14 +1,18 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.database import get_db
-from app.repositories.device_repository import DeviceRepository
-from app.repositories.user_repository import UserRepository
-from app.services.device_service import DeviceService
-from app.dtos.device_dto import DeviceRegisterRequest, DeviceResponse, DevicesListResponse, DeviceHeartbeatResponse, DeviceHeartbeatRequest
 from app.dependencies import get_current_user
+from app.database import get_db
 from app.models.user import User
 from app.exceptions.base_exception import NotFoundError, AlreadyExistsError, ExternalServiceError
+
+from app.repositories.device_repository import DeviceRepository
+from app.repositories.user_repository import UserRepository
+
+from app.dtos.device_dto import DeviceRegisterRequest, DeviceResponse, DevicesListResponse, DeviceHeartbeatResponse, DeviceHeartbeatRequest
+
+from app.services.device_service import DeviceService
+from app.services.spotify_service import SpotifyService
 
 router = APIRouter(prefix="/devices", tags=["Device"])
 
@@ -17,11 +21,16 @@ async def get_device_repository(db: AsyncSession = Depends(get_db)) -> DeviceRep
 async def get_user_repository(db: AsyncSession = Depends(get_db)) -> UserRepository:
     return UserRepository(db)
 
+async def get_spotify_service(
+        user_repo: UserRepository = Depends(get_user_repository),
+) -> SpotifyService:
+    return SpotifyService(user_repo)
 async def get_device_service(
         device_repo: DeviceRepository = Depends(get_device_repository),
         user_repo: UserRepository = Depends(get_user_repository),
+        spotify_service: SpotifyService = Depends(get_spotify_service),
 ) -> DeviceService:
-    return DeviceService(device_repo,user_repo)
+    return DeviceService(device_repo,user_repo, spotify_service)
 
 
 #Creates a device

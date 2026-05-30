@@ -14,8 +14,31 @@ All notable changes to the Orpheus API are documented here.
 
 ## [Unreleased]
 
+---
+## [0.3.2] - 2026-05-30
+
+### Added
+- `app/services/spotify_service.py` — servicio compartido para interacciones
+  con la Spotify API: `ensure_fresh_token` (refresca el access_token si venció
+  y actualiza DB) y `get_spotify_device_id` (busca el dispositivo Raspotify
+  por nombre en la lista de dispositivos activos de Spotify)
+- `tests/test_spotify_service.py` — 9 tests cubriendo token válido, refresco
+  de token expirado, actualización en DB, error de Spotify, y búsqueda de
+  dispositivo por nombre
+
+### Changed
+- `device_service.py` — `DeviceService` ahora recibe `SpotifyService` como
+  dependencia en lugar de tener los métodos privados `_ensure_fresh_token` y
+  `_get_spotify_device_id`. Elimina imports de `httpx`, `settings` y `SpotifyError`
+- `device_controller.py` — cadena de dependencias actualizada para instanciar
+  e inyectar `SpotifyService`
+- `tests/test_device_service.py` — refactorizado para usar `mock_spotify_service`
+  en lugar de mockear `httpx` directamente. `TestEnsureFreshToken` y
+  `TestGetSpotifyDeviceId` migrados a `test_spotify_service.py`
+
 --- 
 ## [0.3.1] - 2026-05-30
+
 ### Added
 - `app/exceptions/base_exception.py` — `ExternalServiceError` con mensaje
   parametrizado `"{service} error: {detail}"`
@@ -32,6 +55,7 @@ All notable changes to the Orpheus API are documented here.
 
 ---
 ## [0.3.0] - 2026-05-29
+
 ### Added
 - `POST /devices/heartbeat` — token refresh automático + descubrimiento
   del spotify_device_id via Spotify API, sin JWT (llamado por la Pi)
@@ -40,6 +64,7 @@ All notable changes to the Orpheus API are documented here.
 
 ---
 ## [0.2.3] - 2026-05-29
+
 ### Added
 - `app/exceptions/base_exception.py` — NotFoundError y AlreadyExistsError
   con mensaje parametrizado: "Entity with id 'x' not/already found"
