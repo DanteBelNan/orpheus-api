@@ -4,8 +4,9 @@ from fastapi import HTTPException
 
 from app.database import get_db
 from app.repositories.device_repository import DeviceRepository
+from app.repositories.user_repository import UserRepository
 from app.services.device_service import DeviceService
-from app.dtos.device_dto import DeviceRegisterRequest, DeviceResponse, DevicesListResponse
+from app.dtos.device_dto import DeviceRegisterRequest, DeviceResponse, DevicesListResponse, DeviceHeartbeatResponse, DeviceHeartbeatRequest
 from app.dependencies import get_current_user
 from app.models.user import User
 from app.exceptions.base_exception import NotFoundError, AlreadyExistsError
@@ -14,9 +15,14 @@ router = APIRouter(prefix="/devices", tags=["Device"])
 
 async def get_device_repository(db: AsyncSession = Depends(get_db)) -> DeviceRepository:
     return DeviceRepository(db)
+async def get_user_repository(db: AsyncSession = Depends(get_db)) -> UserRepository:
+    return UserRepository(db)
 
-async def get_device_service(repo: DeviceRepository = Depends(get_device_repository)) -> DeviceService:
-    return DeviceService(repo)
+async def get_device_service(
+        device_repo: DeviceRepository = Depends(get_device_repository),
+        user_repo: UserRepository = Depends(get_user_repository),
+) -> DeviceService:
+    return DeviceService(device_repo,user_repo)
 
 
 #Creates a device
@@ -57,3 +63,12 @@ async def get_device(
     except NotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
     
+@router.post("/heartbeat", response_model=DeviceHeartbeatResponse, status_code=200)
+async def heartbeat(
+    body: DeviceHeartbeatRequest,
+    service: DeviceService = Depends(get_device_service),
+):
+    try:
+        return await service.process_heartbeat(device_id=body.device_id)
+    except NotFoundError as e:
+        raise HTTPException(status_code=404,detail=str(e))

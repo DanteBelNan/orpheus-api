@@ -15,6 +15,14 @@ All notable changes to the Orpheus API are documented here.
 ## [Unreleased]
 
 ---
+## [0.3.0] - 2026-05-29
+### Added
+- `POST /devices/heartbeat` — token refresh automático + descubrimiento
+  del spotify_device_id via Spotify API, sin JWT (llamado por la Pi)
+- `tests/test_device_service.py` — 10 tests adicionales cubriendo
+  heartbeat, token refresh y descubrimiento de dispositivo Spotify
+
+---
 ## [0.2.3] - 2026-05-29
 ### Added
 - `app/exceptions/base_exception.py` — NotFoundError y AlreadyExistsError
