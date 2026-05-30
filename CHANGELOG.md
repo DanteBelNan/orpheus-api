@@ -15,7 +15,28 @@ All notable changes to the Orpheus API are documented here.
 ## [Unreleased]
 
 ---
-## [0.3.0] - 2026-05-29
+## [0.2.3] - 2026-05-29
+### Added
+- `app/exceptions/base_exception.py` — NotFoundError y AlreadyExistsError
+  con mensaje parametrizado: "Entity with id 'x' not/already found"
+- `app/exceptions/user_exception.py` — UserNotFoundError
+- `app/dtos/device_dto.py` — DeviceHeartbeatRequest, DeviceHeartbeatResponse
+- `app/repositories/device_repository.py` — update_heartbeat (actualiza
+  spotify_device_id y last_seen)
+- `app/repositories/user_repository.py` — update_tokens
+
+### Changed
+- device_exception.py — DeviceNotFoundError y DeviceAlreadyRegisteredError
+  heredan de las bases y pasan el device_id al mensaje
+- device_controller.py — usa NotFoundError y AlreadyExistsError como bases
+  para los catches; inyecta UserRepository en DeviceService
+- device_service.py — raise con identificadores; esqueleto de process_heartbeat
+
+### Pending
+- process_heartbeat: lógica de token refresh + llamada a Spotify API
+
+---
+## [0.2.2] - 2026-05-29
 
 ### Added
 - `app/exceptions/device_exception.py` — domain exceptions layer:

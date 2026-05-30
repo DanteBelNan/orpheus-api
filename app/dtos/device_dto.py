@@ -22,6 +22,11 @@ class DeviceRegisterRequest(BaseModel):
     device_id: str
     name: str
 
+class DeviceHeartbeatResponse(BaseModel):
+    device_id: str
 
+class DeviceHeartbeatRequest(BaseModel):
+    status: str
+    spotify_device_id: str | None
 
     

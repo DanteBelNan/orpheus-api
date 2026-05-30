@@ -8,7 +8,7 @@ from app.services.device_service import DeviceService
 from app.dtos.device_dto import DeviceRegisterRequest, DeviceResponse, DevicesListResponse
 from app.dependencies import get_current_user
 from app.models.user import User
-from app.exceptions.device_exception import DeviceNotFoundError, DeviceAlreadyRegisteredError
+from app.exceptions.base_exception import NotFoundError, AlreadyExistsError
 
 router = APIRouter(prefix="/devices", tags=["Device"])
 
@@ -32,8 +32,8 @@ async def register_device(
             user_id=current_user.id,
             name=body.name
         )
-    except DeviceAlreadyRegisteredError:
-        raise HTTPException(status_code=409, detail="Device Already registered")
+    except AlreadyExistsError as e:
+        raise HTTPException(status_code=409, detail=str(e))
     
 #Gets all the devices of the current user
 @router.get("/", response_model=DevicesListResponse, status_code=200)
@@ -54,6 +54,6 @@ async def get_device(
 ):
     try:
         return await service.get_device_by_id(device_id=device_id)
-    except DeviceNotFoundError:
-        raise HTTPException(status_code=404, detail="Device not found")
+    except NotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
     
