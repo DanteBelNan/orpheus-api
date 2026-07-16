@@ -13,6 +13,22 @@ All notable changes to the Orpheus API are documented here.
 ---
 ## [Unreleased]
 ---
+## [0.4.0] - 2026-07-16
+
+### Added
+- `PATCH /vinyls/{vinyl_id}` — asigna álbum a un vinilo, restringido al
+  `created_by` (403 si no es el dueño, 404 si no existe). Usa
+  `model_dump(exclude_none=True)` para actualización parcial de campos
+- `DELETE /vinyls/{vinyl_id}` — elimina un vinilo con la misma lógica de
+  autorización, devuelve 204 sin body
+- `vinyl_router` registrado en `main.py`
+- 8 tests nuevos en `test_vinyl_service.py` cubriendo PATCH y DELETE:
+  not found, forbidden y happy path para ambos métodos
+
+### Changed
+- `mock_vinyl_repository` en tests actualizado con `update` y `delete` como `AsyncMock`
+
+---
 ## [0.3.5] - 2026-05-30
 ### Added
 - `app/exceptions/base_exception.py` — `ForbiddenError` con mensaje

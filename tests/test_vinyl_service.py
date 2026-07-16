@@ -4,7 +4,8 @@ from datetime import datetime
 import pytest
 
 from app.services.vinyl_service import VinylService
-from app.exceptions.vinyl_exception import VinylNotFoundError
+from app.exceptions.vinyl_exception import VinylNotFoundError, VinylForbiddenError
+from app.dtos.vinyl_dto import VinylUpdateRequest
 
 
 @pytest.fixture
@@ -12,6 +13,8 @@ def mock_vinyl_repository():
     repo = MagicMock()
     repo.get_all = AsyncMock()
     repo.get_by_id = AsyncMock()
+    repo.update = AsyncMock()
+    repo.delete = AsyncMock()
     return repo
 
 
@@ -117,3 +120,95 @@ class TestGetVinylById:
         result = await vinyl_service.get_vinyl_by_id(1)
 
         assert result.status == "configured"
+
+
+class TestUpdateVinylById:
+    @pytest.fixture
+    def update_body(self):
+        return VinylUpdateRequest(
+            name="Updated Name",
+            spotify_uri="spotify:album:yyy",
+            album_name="Updated Album",
+            album_art_url="https://example.com/new.jpg",
+        )
+
+    async def test_raises_not_found_when_vinyl_missing(self, vinyl_service, mock_vinyl_repository, update_body):
+        mock_vinyl_repository.get_by_id.return_value = None
+
+        with pytest.raises(VinylNotFoundError):
+            await vinyl_service.update_vinyl_by_id(99, 1, update_body)
+
+    async def test_raises_forbidden_when_not_owner(self, vinyl_service, mock_vinyl_repository, mock_db_vinyl, update_body):
+        mock_db_vinyl.created_by = 5
+        mock_vinyl_repository.get_by_id.return_value = mock_db_vinyl
+
+        with pytest.raises(VinylForbiddenError):
+            await vinyl_service.update_vinyl_by_id(1, 1, update_body)
+
+    async def test_returns_updated_vinyl(self, vinyl_service, mock_vinyl_repository, mock_db_vinyl, update_body):
+        mock_db_vinyl.created_by = 1
+        mock_vinyl_repository.get_by_id.return_value = mock_db_vinyl
+
+        updated_mock = MagicMock()
+        updated_mock.id = 1
+        updated_mock.tag_id = "04:A2:B3:C4"
+        updated_mock.created_by = 1
+        updated_mock.name = "Updated Name"
+        updated_mock.spotify_uri = "spotify:album:yyy"
+        updated_mock.album_name = "Updated Album"
+        updated_mock.album_art_url = "https://example.com/new.jpg"
+        updated_mock.last_played = None
+        updated_mock.created_at = datetime(2026, 1, 1, 12, 0, 0)
+        mock_vinyl_repository.update.return_value = updated_mock
+
+        result = await vinyl_service.update_vinyl_by_id(1, 1, update_body)
+
+        assert result.name == "Updated Name"
+        assert result.spotify_uri == "spotify:album:yyy"
+        assert result.status == "configured"
+
+    async def test_calls_repository_update_with_correct_fields(self, vinyl_service, mock_vinyl_repository, mock_db_vinyl, update_body):
+        mock_db_vinyl.created_by = 1
+        mock_vinyl_repository.get_by_id.return_value = mock_db_vinyl
+        mock_vinyl_repository.update.return_value = mock_db_vinyl
+
+        await vinyl_service.update_vinyl_by_id(1, 1, update_body)
+
+        mock_vinyl_repository.update.assert_called_once_with(
+            1,
+            name="Updated Name",
+            spotify_uri="spotify:album:yyy",
+            album_name="Updated Album",
+            album_art_url="https://example.com/new.jpg",
+        )
+
+
+class TestDeleteVinylById:
+    async def test_raises_not_found_when_vinyl_missing(self, vinyl_service, mock_vinyl_repository):
+        mock_vinyl_repository.get_by_id.return_value = None
+
+        with pytest.raises(VinylNotFoundError):
+            await vinyl_service.delete_vinyl_by_id(99, 1)
+
+    async def test_raises_forbidden_when_not_owner(self, vinyl_service, mock_vinyl_repository, mock_db_vinyl):
+        mock_db_vinyl.created_by = 5
+        mock_vinyl_repository.get_by_id.return_value = mock_db_vinyl
+
+        with pytest.raises(VinylForbiddenError):
+            await vinyl_service.delete_vinyl_by_id(1, 1)
+
+    async def test_calls_repository_delete(self, vinyl_service, mock_vinyl_repository, mock_db_vinyl):
+        mock_db_vinyl.created_by = 1
+        mock_vinyl_repository.get_by_id.return_value = mock_db_vinyl
+
+        await vinyl_service.delete_vinyl_by_id(1, 1)
+
+        mock_vinyl_repository.delete.assert_called_once_with(1)
+
+    async def test_returns_none(self, vinyl_service, mock_vinyl_repository, mock_db_vinyl):
+        mock_db_vinyl.created_by = 1
+        mock_vinyl_repository.get_by_id.return_value = mock_db_vinyl
+
+        result = await vinyl_service.delete_vinyl_by_id(1, 1)
+
+        assert result is None

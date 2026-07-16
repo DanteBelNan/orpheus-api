@@ -1,6 +1,6 @@
 from app.repositories.vinyl_repository import VinylRepository
-from app.dtos.vinyl_dto import VinylListResponse, VinylResponse
-from app.exceptions.vinyl_exception import VinylNotFoundError
+from app.dtos.vinyl_dto import VinylListResponse, VinylResponse, VinylUpdateRequest
+from app.exceptions.vinyl_exception import VinylNotFoundError, VinylForbiddenError
 
 class VinylService:
     def __init__(self, vinyl_repository: VinylRepository):
@@ -21,3 +21,20 @@ class VinylService:
         if vinyl is None:
             raise VinylNotFoundError(id)
         return VinylResponse.model_validate(vinyl)
+    
+    async def update_vinyl_by_id(self, vinyl_id: int, user_id: int, body: VinylUpdateRequest) -> VinylResponse:
+        vinyl = await self.vinyl_repository.get_by_id(vinyl_id)
+        if vinyl is None:
+            raise VinylNotFoundError(vinyl_id)
+        if vinyl.created_by != user_id:
+            raise VinylForbiddenError(vinyl_id,user_id)
+        updated = await self.vinyl_repository.update(vinyl_id, **body.model_dump(exclude_none=True))
+        return VinylResponse.model_validate(updated)
+    
+    async def delete_vinyl_by_id(self, vinyl_id: int, user_id: int) -> None:
+        vinyl = await self.vinyl_repository.get_by_id(vinyl_id)
+        if vinyl is None:
+            raise VinylNotFoundError(vinyl_id)
+        if vinyl.created_by != user_id:
+            raise VinylForbiddenError(vinyl_id,user_id)
+        await self.vinyl_repository.delete(vinyl_id)

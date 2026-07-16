@@ -34,13 +34,40 @@ async def get_all_vinyls(
 ):
     return await service.get_all_vinyls(page,take,created_by,status) 
 
-@router.get('/{id}', response_model=VinylResponse, status_code=200)
+@router.get('/{vinyl_id}', response_model=VinylResponse, status_code=200)
 async def get_vinyl_by_id(
-    id: int,
+    vinyl_id: int,
     service: VinylService = Depends(get_vinyl_service),
     current_user: User = Depends(get_current_user)
 ): 
     try:
-        return await service.get_vinyl_by_id(id)
+        return await service.get_vinyl_by_id(vinyl_id)
     except NotFoundError as e:
         raise HTTPException(status_code=404,detail=str(e))
+    
+@router.patch('/{vinyl_id}', response_model=VinylResponse, status_code=200)
+async def update_vinyl_by_id(
+    vinyl_id: int,
+    body: VinylUpdateRequest,
+    service: VinylService = Depends(get_vinyl_service),
+    current_user: User = Depends(get_current_user),
+):
+    try:
+        return await service.update_vinyl_by_id(vinyl_id, current_user.id, body)
+    except NotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except ForbiddenError as e:
+        raise HTTPException(status_code=403, detail=str(e))
+    
+@router.delete('/{vinyl_id}', status_code=204)
+async def delete_vinyl_by_id(
+    vinyl_id: int,
+    service: VinylService = Depends(get_vinyl_service),
+    current_user: User = Depends(get_current_user),
+):
+    try:
+        await service.delete_vinyl_by_id(vinyl_id,current_user.id)
+    except NotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except ForbiddenError as e:
+        raise HTTPException(status_code=403, detail=str(e))

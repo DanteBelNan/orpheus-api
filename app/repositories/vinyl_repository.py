@@ -60,6 +60,7 @@ class VinylRepository:
         await self.db.commit()
         await self.db.refresh(vinyl)
         return vinyl
+    
     async def delete(self, vinyl_id: int) -> None: #this probably wont be used, but its safe to have it in case we need it
         vinyl = await self.get_by_id(vinyl_id)
         if vinyl:
