@@ -1,0 +1,36 @@
+app/controllers/vinyl_controller.py
+  h_ad46f83cd497b0 37,39,44,47-73
+app/repositories/vinyl_repository.py
+  h_ad46f83cd497b0 63
+app/main.py
+  h_ad46f83cd497b0 4,14
+tests/test_vinyl_service.py
+  s_1d787880d6f5c2::t_bb9bba60ce131a 16-17
+  s_1d787880d6f5c2::t_50663c32cf3802 123-214
+  s_1d787880d6f5c2::t_a0065454298e76 7-8
+CHANGELOG.md
+  s_1d787880d6f5c2::t_08ff964e8b0683 16-30
+app/services/vinyl_service.py
+  h_ad46f83cd497b0 2-3,24-40
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "4001852e4351f6a3cc44a44f9a902c3f743206e0",
+  "prompts": {},
+  "humans": {
+    "h_ad46f83cd497b0": {
+      "author": "dante beltran <dbeltrannanziot@frba.utn.edu.ar>"
+    }
+  },
+  "sessions": {
+    "s_1d787880d6f5c2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "133e613d-b690-4af6-836a-0022ea1b8a36",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "dante beltran <dbeltrannanziot@frba.utn.edu.ar>"
+    }
+  }
+}
