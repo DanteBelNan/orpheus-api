@@ -117,35 +117,9 @@ Llamado por la Pi en cada arranque. Actualiza `last_seen` y refresca el `spotify
 ### Resources
 
 #### `GET /resources/search?q={query}&type=album,playlist`
-Busca recursos de Spotify (álbumes y/o playlists) para asignar a un vinilo. Devuelve resultados combinados de dos fuentes, cada uno etiquetado con su origen para que el frontend los muestre diferenciados.
+Proxy hacia la Spotify Search API. El backend realiza la búsqueda usando el `access_token` del usuario autenticado y devuelve los resultados al frontend.
 - **Auth:** sesión de usuario requerida
-- **Fuentes:**
-  - `spotify` — búsqueda en vivo contra la Spotify Search API
-  - `local` — recursos precargados del usuario desde la tabla `playlists`
-- **Respuesta:** `[{ "spotify_uri": "spotify:album:xxx", "name": "...", "art_url": "...", "type": "album|playlist", "source": "spotify|local" }]`
-
----
-
-### Playlists (Recursos Precargados)
-
-Permite al usuario guardar álbumes y playlists de Spotify en su cuenta de Orpheus. Al configurar un vinilo, estos recursos aparecen junto a los resultados en vivo de Spotify en `GET /resources/search`, sin depender de la disponibilidad de Spotify en ese momento.
-
-#### `GET /playlists`
-Devuelve todos los recursos precargados por el usuario autenticado.
-- **Auth:** sesión de usuario requerida
-- **Respuesta:** `[{ "id": 1, "spotify_uri": "...", "name": "...", "art_url": "...", "type": "album|playlist" }]`
-
-#### `POST /playlists`
-Guarda un recurso de Spotify en la lista local del usuario.
-- **Auth:** sesión de usuario requerida
-- **Request:** `{ "spotify_uri": "spotify:playlist:xxx", "name": "...", "art_url": "...", "type": "playlist" }`
-- **Respuesta:** `{ "id": 1, ... }` → 201
-
-#### `DELETE /playlists/{id}`
-Elimina un recurso precargado. Solo el dueño puede eliminarlo.
-- **Auth:** sesión de usuario requerida
-- **Autorización:** devuelve `403` si el usuario autenticado no es el dueño
-- **Respuesta:** 204 No Content
+- **Respuesta:** `[{ "spotify_uri": "spotify:album:xxx", "name": "...", "art_url": "...", "type": "album|playlist" }]`
 
 ---
 
@@ -259,6 +233,12 @@ Esquema tentativo de la tabla:
 | changed_at | DATETIME | |
 
 El repository de vinyls ya tiene un comentario reservado para esta funcionalidad en el método `update`. La implementación consistiría en insertar un registro en `vinyl_history` dentro del mismo `update`, antes del commit.
+
+---
+
+## Post-MVP: Biblioteca de Recursos Precargados (Playlists)
+
+Permite al usuario guardar álbumes y playlists de Spotify localmente para tenerlos como acceso rápido al configurar vinyls, sin tener que buscar en Spotify cada vez. Requiere una tabla `playlists` y tres endpoints: `GET /playlists`, `POST /playlists`, `DELETE /playlists/{id}`. Descartado del MVP por no agregar valor crítico — si Spotify no devuelve un URI válido al buscarlo, tampoco lo devuelve guardado localmente.
 
 ---
 

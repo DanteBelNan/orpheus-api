@@ -13,6 +13,7 @@ from app.dtos.device_dto import DeviceRegisterRequest, DeviceResponse, DevicesLi
 
 from app.services.device_service import DeviceService
 from app.services.spotify_service import SpotifyService
+from app.clients.spotify_client import SpotifyClient
 
 router = APIRouter(prefix="/devices", tags=["Device"])
 
@@ -24,7 +25,7 @@ async def get_user_repository(db: AsyncSession = Depends(get_db)) -> UserReposit
 async def get_spotify_service(
         user_repo: UserRepository = Depends(get_user_repository),
 ) -> SpotifyService:
-    return SpotifyService(user_repo)
+    return SpotifyService(user_repo, SpotifyClient())
 async def get_device_service(
         device_repo: DeviceRepository = Depends(get_device_repository),
         user_repo: UserRepository = Depends(get_user_repository),

@@ -13,6 +13,33 @@ All notable changes to the Orpheus API are documented here.
 ---
 ## [Unreleased]
 ---
+## [0.4.1] - 2026-07-18
+
+### Added
+- `app/clients/spotify_client.py` — capa HTTP pura para Spotify API:
+  `exchange_token`, `get_active_devices`, `search`. Cada método captura
+  `httpx.HTTPStatusError` y propaga el mensaje de error de Spotify con
+  status code incluido
+- `with_fresh_token` decorator en `SpotifyService` — middleware que verifica
+  expiración del token antes de cada llamada a Spotify, refresca si es necesario
+  y actualiza `access_token` + `refresh_token` (si Spotify devuelve uno nuevo)
+  en DB. Elimina la necesidad de llamar a `ensure_fresh_token` explícitamente
+- `search(user, query, resource_type)` en `SpotifyService` — endpoint de
+  búsqueda Spotify pendiente de su controller
+
+### Changed
+- `SpotifyService` ya no hace llamadas HTTP directas — delega todo al
+  `SpotifyClient`. Elimina imports de `httpx`, `settings` y `SpotifyError`
+- `SpotifyService.__init__` ahora recibe `SpotifyClient` además de `UserRepository`
+- Métodos del service reciben `user` como primer argumento en lugar de
+  `access_token` — el decorator resuelve el token internamente
+- `user_repository.update_tokens` acepta `refresh_token: str | None = None`
+  para manejar rotación de refresh tokens
+- `device_controller.py` actualizado para inyectar `SpotifyClient` en `SpotifyService`
+- `tests/test_spotify_service.py` reescrito: mockea `SpotifyClient` en lugar
+  de `httpx`, cubre decorator, `get_spotify_device_id` y `search` (14 tests nuevos)
+
+---
 ## [0.4.0] - 2026-07-16
 
 ### Added
