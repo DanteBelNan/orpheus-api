@@ -3,6 +3,9 @@ from app.repositories.user_repository import UserRepository
 from app.services.spotify_service import SpotifyService
 from app.models.user import User
 from app.exceptions.vinyl_exception import VinylPending, VinylCreated
+from app.logger import get_logger
+
+logger = get_logger(__name__)
 
 class PlayService:
     def __init__(
@@ -14,10 +17,17 @@ class PlayService:
         self.spotify_service = spotify_service
 
     async def play(self, user: User, device_id: str, tag_id: str, song_index = 0, ms_delay = 0):
+        logger.info("Tag scanned", extra={"tag_id": tag_id, "device_id": device_id, "user_id": user.id})
+
         vinyl = await self.vinyl_repository.get_by_tag_id(tag_id)
         if vinyl is None:
             vinyl = await self.vinyl_repository.create(tag_id, user.id)
+            logger.info("New vinyl registered", extra={"tag_id": tag_id, "vinyl_id": vinyl.id, "user_id": user.id})
             raise VinylCreated(vinyl.id, user.id)
+
         if vinyl.spotify_uri is None:
+            logger.info("Vinyl pending configuration", extra={"vinyl_id": vinyl.id, "tag_id": tag_id})
             raise VinylPending(vinyl.id, user.id)
-        return await self.spotify_service.play(user,device_id,vinyl.spotify_uri,song_index,ms_delay)
+
+        logger.info("Playing vinyl", extra={"vinyl_id": vinyl.id, "spotify_uri": vinyl.spotify_uri, "device_id": device_id})
+        return await self.spotify_service.play(user, device_id, vinyl.spotify_uri, song_index, ms_delay)

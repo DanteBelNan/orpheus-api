@@ -3,6 +3,9 @@ from datetime import datetime, timedelta
 from app.repositories.user_repository import UserRepository
 from app.clients.spotify_client import SpotifyClient
 from app.dtos.resource_dto import ResourceListResponse, ResourceResponse
+from app.logger import get_logger
+
+logger = get_logger(__name__)
 
 class SpotifyService():
     def __init__(self, user_repository: UserRepository, spotify_client: SpotifyClient):
@@ -22,6 +25,7 @@ class SpotifyService():
                     refresh_token=new_refresh_token,
                     token_expires_at=new_expires_at,
                 )
+                logger.info("Spotify token refreshed", extra={"user_id": user.id})
                 access_token = data["access_token"]
             else:
                 access_token = user.spotify_access_token

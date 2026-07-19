@@ -13,6 +13,7 @@ from app.services.auth_service import AuthService
 def mock_user_repository():
     repo = MagicMock()
     repo.upsert = AsyncMock()
+    repo.get_by_spotify_id = AsyncMock(return_value=None)
     return repo
 
 

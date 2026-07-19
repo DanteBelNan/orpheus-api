@@ -4,6 +4,9 @@ from app.dtos.device_dto import DeviceResponse, DevicesListResponse, DeviceHeart
 from app.exceptions.device_exception import DeviceAlreadyRegisteredError, DeviceNotFoundError
 from app.exceptions.user_exception import UserNotFoundError
 from app.services.spotify_service import SpotifyService
+from app.logger import get_logger
+
+logger = get_logger(__name__)
 
 class DeviceService:
     def __init__(self, device_repository: DeviceRepository, user_repository: UserRepository, spotify_service: SpotifyService):
@@ -31,10 +34,11 @@ class DeviceService:
         existing = await self.device_repository.get_by_device_id(device_id)
         if existing:
             raise DeviceAlreadyRegisteredError(device_id)
-        
-        device = await self.device_repository.insert(device_id,user_id,name)
+
+        device = await self.device_repository.insert(device_id, user_id, name)
+        logger.info("Device registered", extra={"device_id": device_id, "user_id": user_id, "device_name": name})
         return DeviceResponse.model_validate(device)
-    
+
     #Updates the spotify_device_id of a device integrating with the spotify api
     async def process_heartbeat(self, device_id: str) -> DeviceHeartbeatResponse:
         device = await self.device_repository.get_by_device_id(device_id)
@@ -42,12 +46,15 @@ class DeviceService:
             raise DeviceNotFoundError(device_id)
         user = await self.user_repository.get_by_id(device.user_id)
         if user is None:
-            raise UserNotFoundError(device.user_id) 
+            raise UserNotFoundError(device.user_id)
+
+        logger.info("Heartbeat received", extra={"device_id": device_id, "user_id": user.id})
 
         access_token = await self.spotify_service.ensure_fresh_token(user)
-        spotify_device_id = await self.spotify_service.get_spotify_device_id(access_token,device.name)
-        await self.device_repository.update_heartbeat(device_id,spotify_device_id)
+        spotify_device_id = await self.spotify_service.get_spotify_device_id(access_token, device.name)
+        await self.device_repository.update_heartbeat(device_id, spotify_device_id)
 
+        logger.info("Spotify device ID cached", extra={"device_id": device_id, "spotify_device_id": spotify_device_id})
         return DeviceHeartbeatResponse(
             status="ok",
             spotify_device_id=spotify_device_id

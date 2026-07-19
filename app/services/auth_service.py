@@ -7,6 +7,9 @@ from app.config import settings
 from app.repositories.user_repository import UserRepository
 from app.dtos.user_dto import SpotifyTokenData, SpotifyUserData, UserResponse
 from app.exceptions.spotify_exception import SpotifyError
+from app.logger import get_logger
+
+logger = get_logger(__name__)
 
 SPOTIFY_AUTH_URL = "https://accounts.spotify.com/authorize"
 SPOTIFY_TOKEN_URL = "https://accounts.spotify.com/api/token"
@@ -72,6 +75,7 @@ class AuthService:
         spotify_user = await self.get_spotify_user(token_data.access_token)
         token_expires_at = datetime.utcnow() + timedelta(seconds=token_data.expires_in)
 
+        existing = await self.user_repository.get_by_spotify_id(spotify_user.spotify_user_id)
         user = await self.user_repository.upsert(
             spotify_user_id=spotify_user.spotify_user_id,
             email=spotify_user.email,
@@ -79,6 +83,10 @@ class AuthService:
             refresh_token=token_data.refresh_token,
             token_expires_at=token_expires_at,
         )
+        if existing:
+            logger.info("User logged in", extra={"user_id": user.id, "spotify_user_id": user.spotify_user_id})
+        else:
+            logger.info("New user registered", extra={"user_id": user.id, "spotify_user_id": user.spotify_user_id})
 
         jwt_token = self._create_jwt(user.id)
         return jwt_token, UserResponse.model_validate(user)
