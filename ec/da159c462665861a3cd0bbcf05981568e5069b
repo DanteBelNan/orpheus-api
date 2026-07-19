@@ -1,0 +1,37 @@
+requirements.txt
+  s_1d787880d6f5c2::t_4d42d99020f3bb 2
+app/logger.py
+  s_1d787880d6f5c2::t_92d00081f42f5b 1,3,6-40,45
+  s_1d787880d6f5c2::t_7c33385bc9e364 2,4-5,41-44,46-48
+app/services/auth_service.py
+  s_1d787880d6f5c2::t_033aec86eea4d9 10-12
+  s_1d787880d6f5c2::t_fe52d17ce83a81 78,86-89
+app/services/spotify_service.py
+  s_1d787880d6f5c2::t_c12b5352c3985b 6-8
+  s_1d787880d6f5c2::t_c655e7092c86f3 28
+tests/test_auth_service.py
+  s_1d787880d6f5c2::t_9d023c33d01f11 16
+app/services/device_service.py
+  s_1d787880d6f5c2::t_8da8b4794b67e8 37-38,41,49-51,54-55,57
+  s_1d787880d6f5c2::t_bd371e2472c4d4 7-9
+  s_1d787880d6f5c2::t_fe3a8b0a73bf93 39
+app/services/play_service.py
+  s_1d787880d6f5c2::t_4366b4998e9964 6-8
+  s_1d787880d6f5c2::t_cdf72dfc0673b2 20-21,25,27,29,31-33
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "ecda159c462665861a3cd0bbcf05981568e5069b",
+  "prompts": {},
+  "sessions": {
+    "s_1d787880d6f5c2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "133e613d-b690-4af6-836a-0022ea1b8a36",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "dante beltran <dbeltrannanziot@frba.utn.edu.ar>"
+    }
+  }
+}
