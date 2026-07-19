@@ -1,0 +1,40 @@
+CHANGELOG.md
+  s_1d787880d6f5c2::t_393e029cb3100c 16-38
+app/clients/responses_template/me.player.devices.json
+  h_ad46f83cd497b0 1-14
+app/clients/responses_template/token.json
+  h_ad46f83cd497b0 1-7
+app/services/spotify_service.py
+  h_ad46f83cd497b0 5,43-65
+app/controllers/resource_controller.py
+  h_ad46f83cd497b0 1-37
+app/main.py
+  h_ad46f83cd497b0 5,16
+tests/test_spotify_client.py
+  s_1d787880d6f5c2::t_01bbbf3f7795e9 1-150
+tests/test_spotify_service.py
+  s_1d787880d6f5c2::t_903d1162acaaf2 154,159-161
+app/dtos/resource_dto.py
+  h_ad46f83cd497b0 1-12
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "dd4d10fe3d0b92a600ff8b71e31958f415c81209",
+  "prompts": {},
+  "humans": {
+    "h_ad46f83cd497b0": {
+      "author": "dante beltran <dbeltrannanziot@frba.utn.edu.ar>"
+    }
+  },
+  "sessions": {
+    "s_1d787880d6f5c2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "133e613d-b690-4af6-836a-0022ea1b8a36",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "dante beltran <dbeltrannanziot@frba.utn.edu.ar>"
+    }
+  }
+}
