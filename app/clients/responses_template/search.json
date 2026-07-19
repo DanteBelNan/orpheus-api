@@ -1,0 +1,237 @@
+{
+  "albums": {
+    "href": "https://api.spotify.com/v1/search?offset=0&limit=5&query=remaster%2520track%3ADoxy%2520artist%3AMiles%2520Davis&type=album&locale=es-US,es-ES;q%3D0.9,es-419;q%3D0.8,es;q%3D0.7",
+    "limit": 5,
+    "next": "https://api.spotify.com/v1/search?offset=5&limit=5&query=remaster%2520track%3ADoxy%2520artist%3AMiles%2520Davis&type=album&locale=es-US,es-ES;q%3D0.9,es-419;q%3D0.8,es;q%3D0.7",
+    "offset": 0,
+    "previous": null,
+    "total": 800,
+    "items": [
+      {
+        "album_type": "album",
+        "total_tracks": 9,
+        "external_urls": {
+          "spotify": "https://open.spotify.com/album/56I4vUYWQ4aXLiyfo8XuZv"
+        },
+        "href": "https://api.spotify.com/v1/albums/56I4vUYWQ4aXLiyfo8XuZv",
+        "id": "56I4vUYWQ4aXLiyfo8XuZv",
+        "images": [
+          {
+            "height": 640,
+            "url": "https://i.scdn.co/image/ab67616d0000b2735e10a5aca3763224e2050016",
+            "width": 640
+          },
+          {
+            "height": 300,
+            "url": "https://i.scdn.co/image/ab67616d00001e025e10a5aca3763224e2050016",
+            "width": 300
+          },
+          {
+            "height": 64,
+            "url": "https://i.scdn.co/image/ab67616d000048515e10a5aca3763224e2050016",
+            "width": 64
+          }
+        ],
+        "name": "Milestones",
+        "release_date": "1958-04",
+        "release_date_precision": "month",
+        "type": "album",
+        "uri": "spotify:album:56I4vUYWQ4aXLiyfo8XuZv",
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/0kbYTNQb4Pb1rPbbaF0pT4"
+            },
+            "href": "https://api.spotify.com/v1/artists/0kbYTNQb4Pb1rPbbaF0pT4",
+            "id": "0kbYTNQb4Pb1rPbbaF0pT4",
+            "name": "Miles Davis",
+            "type": "artist",
+            "uri": "spotify:artist:0kbYTNQb4Pb1rPbbaF0pT4"
+          }
+        ]
+      },
+      {
+        "album_type": "album",
+        "total_tracks": 8,
+        "external_urls": {
+          "spotify": "https://open.spotify.com/album/7buLIJn2VuqsVORghMEvli"
+        },
+        "href": "https://api.spotify.com/v1/albums/7buLIJn2VuqsVORghMEvli",
+        "id": "7buLIJn2VuqsVORghMEvli",
+        "images": [
+          {
+            "height": 640,
+            "url": "https://i.scdn.co/image/ab67616d0000b273e2e871611c36d490252a2e9f",
+            "width": 640
+          },
+          {
+            "height": 300,
+            "url": "https://i.scdn.co/image/ab67616d00001e02e2e871611c36d490252a2e9f",
+            "width": 300
+          },
+          {
+            "height": 64,
+            "url": "https://i.scdn.co/image/ab67616d00004851e2e871611c36d490252a2e9f",
+            "width": 64
+          }
+        ],
+        "name": "Workin' With The Miles Davis Quintet",
+        "release_date": "1959",
+        "release_date_precision": "year",
+        "type": "album",
+        "uri": "spotify:album:7buLIJn2VuqsVORghMEvli",
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/71Ur25Abq58vksqJINpGdx"
+            },
+            "href": "https://api.spotify.com/v1/artists/71Ur25Abq58vksqJINpGdx",
+            "id": "71Ur25Abq58vksqJINpGdx",
+            "name": "Miles Davis Quintet",
+            "type": "artist",
+            "uri": "spotify:artist:71Ur25Abq58vksqJINpGdx"
+          }
+        ]
+      },
+      {
+        "album_type": "album",
+        "total_tracks": 11,
+        "external_urls": {
+          "spotify": "https://open.spotify.com/album/0QWea2w5Y6pSoSWHuc7JMf"
+        },
+        "href": "https://api.spotify.com/v1/albums/0QWea2w5Y6pSoSWHuc7JMf",
+        "id": "0QWea2w5Y6pSoSWHuc7JMf",
+        "images": [
+          {
+            "height": 640,
+            "url": "https://i.scdn.co/image/ab67616d0000b273f44518f7aea6cc64ecca8448",
+            "width": 640
+          },
+          {
+            "height": 300,
+            "url": "https://i.scdn.co/image/ab67616d00001e02f44518f7aea6cc64ecca8448",
+            "width": 300
+          },
+          {
+            "height": 64,
+            "url": "https://i.scdn.co/image/ab67616d00004851f44518f7aea6cc64ecca8448",
+            "width": 64
+          }
+        ],
+        "name": "Birth Of The Cool",
+        "release_date": "1957",
+        "release_date_precision": "year",
+        "type": "album",
+        "uri": "spotify:album:0QWea2w5Y6pSoSWHuc7JMf",
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/0kbYTNQb4Pb1rPbbaF0pT4"
+            },
+            "href": "https://api.spotify.com/v1/artists/0kbYTNQb4Pb1rPbbaF0pT4",
+            "id": "0kbYTNQb4Pb1rPbbaF0pT4",
+            "name": "Miles Davis",
+            "type": "artist",
+            "uri": "spotify:artist:0kbYTNQb4Pb1rPbbaF0pT4"
+          }
+        ]
+      },
+      {
+        "album_type": "album",
+        "total_tracks": 21,
+        "external_urls": {
+          "spotify": "https://open.spotify.com/album/4sb0eMpDn3upAFfyi4q2rw"
+        },
+        "href": "https://api.spotify.com/v1/albums/4sb0eMpDn3upAFfyi4q2rw",
+        "id": "4sb0eMpDn3upAFfyi4q2rw",
+        "images": [
+          {
+            "height": 640,
+            "url": "https://i.scdn.co/image/ab67616d0000b2730ebc17239b6b18ba88cfb8ca",
+            "width": 640
+          },
+          {
+            "height": 300,
+            "url": "https://i.scdn.co/image/ab67616d00001e020ebc17239b6b18ba88cfb8ca",
+            "width": 300
+          },
+          {
+            "height": 64,
+            "url": "https://i.scdn.co/image/ab67616d000048510ebc17239b6b18ba88cfb8ca",
+            "width": 64
+          }
+        ],
+        "name": "Kind Of Blue (Legacy Edition)",
+        "release_date": "1959-08-17",
+        "release_date_precision": "day",
+        "type": "album",
+        "uri": "spotify:album:4sb0eMpDn3upAFfyi4q2rw",
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/0kbYTNQb4Pb1rPbbaF0pT4"
+            },
+            "href": "https://api.spotify.com/v1/artists/0kbYTNQb4Pb1rPbbaF0pT4",
+            "id": "0kbYTNQb4Pb1rPbbaF0pT4",
+            "name": "Miles Davis",
+            "type": "artist",
+            "uri": "spotify:artist:0kbYTNQb4Pb1rPbbaF0pT4"
+          }
+        ]
+      },
+      {
+        "album_type": "album",
+        "total_tracks": 7,
+        "external_urls": {
+          "spotify": "https://open.spotify.com/album/1OvmilWKtrabJGEpPRlgK5"
+        },
+        "href": "https://api.spotify.com/v1/albums/1OvmilWKtrabJGEpPRlgK5",
+        "id": "1OvmilWKtrabJGEpPRlgK5",
+        "images": [
+          {
+            "height": 640,
+            "url": "https://i.scdn.co/image/ab67616d0000b2732def9ef3f6a82c8d6fd8c143",
+            "width": 640
+          },
+          {
+            "height": 300,
+            "url": "https://i.scdn.co/image/ab67616d00001e022def9ef3f6a82c8d6fd8c143",
+            "width": 300
+          },
+          {
+            "height": 64,
+            "url": "https://i.scdn.co/image/ab67616d000048512def9ef3f6a82c8d6fd8c143",
+            "width": 64
+          }
+        ],
+        "name": "Duke Ellington & John Coltrane",
+        "release_date": "1963-02",
+        "release_date_precision": "month",
+        "type": "album",
+        "uri": "spotify:album:1OvmilWKtrabJGEpPRlgK5",
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/4F7Q5NV6h5TSwCainz8S5A"
+            },
+            "href": "https://api.spotify.com/v1/artists/4F7Q5NV6h5TSwCainz8S5A",
+            "id": "4F7Q5NV6h5TSwCainz8S5A",
+            "name": "Duke Ellington",
+            "type": "artist",
+            "uri": "spotify:artist:4F7Q5NV6h5TSwCainz8S5A"
+          },
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/2hGh5VOeeqimQFxqXvfCUf"
+            },
+            "href": "https://api.spotify.com/v1/artists/2hGh5VOeeqimQFxqXvfCUf",
+            "id": "2hGh5VOeeqimQFxqXvfCUf",
+            "name": "John Coltrane",
+            "type": "artist",
+            "uri": "spotify:artist:2hGh5VOeeqimQFxqXvfCUf"
+          }
+        ]
+      }
+    ]
+  }
+}

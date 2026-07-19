@@ -13,6 +13,30 @@ All notable changes to the Orpheus API are documented here.
 ---
 ## [Unreleased]
 ---
+## [0.4.2] - 2026-07-18
+
+### Added
+- `app/dtos/resource_dto.py` — `ResourceResponse` (spotify_uri, name, art_url,
+  resource_type, artist) y `ResourceListResponse` para normalizar resultados
+  de albums y playlists en una estructura uniforme
+- `app/controllers/resource_controller.py` — `GET /resources/search?q=&resource_type=`
+  proxy hacia Spotify Search API. `resource_type` defaultea a `"album,playlist"`.
+  Maneja `ExternalServiceError` → 502
+- `SpotifyService.search()` ahora parsea el dict crudo de Spotify y devuelve
+  `ResourceListResponse` — normaliza albums y playlists extrayendo uri, name,
+  art_url, artist
+- `app/tests/test_spotify_client.py` — 10 tests unitarios cubriendo los 3
+  métodos del client: `exchange_token`, `get_active_devices`, `search`. Cubre
+  happy path, parámetros enviados y propagación de errores con status code
+
+### Changed
+- `main.py` — resource router registrado
+- `spotify_service.py` — corregido default de `items` de `{}` a `[]` en el
+  loop de albums del método `search`
+- `test_spotify_service.py::TestSearch` — actualizado para verificar
+  `ResourceListResponse` en lugar del dict crudo
+
+---
 ## [0.4.1] - 2026-07-18
 
 ### Added

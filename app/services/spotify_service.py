@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 
 from app.repositories.user_repository import UserRepository
 from app.clients.spotify_client import SpotifyClient
+from app.dtos.resource_dto import ResourceListResponse, ResourceResponse
 
 class SpotifyService():
     def __init__(self, user_repository: UserRepository, spotify_client: SpotifyClient):
@@ -39,5 +40,26 @@ class SpotifyService():
         return None
         
     @with_fresh_token
-    async def search(self, access_token: str, query: str, resource_type: str) -> dict:
-        return await self.spotify_client.search(access_token,query,resource_type)
+    async def search(self, access_token: str, query: str, resource_type: str) -> ResourceListResponse:
+        raw =  await self.spotify_client.search(access_token,query,resource_type)
+        items = []
+
+        for album in raw.get('albums', {}).get("items", {}):
+            items.append(ResourceResponse(
+                spotify_uri=album["uri"],
+                name=album["name"],
+                art_url=album["images"][0]["url"] if album.get("images") else None,
+                resource_type="album",
+                artist=album["artists"][0]["name"] if album.get("artists") else None,
+            ))
+
+        for playlist in raw.get("playlists", {}).get("items", []):
+            items.append(ResourceResponse(
+                spotify_uri=playlist["uri"],
+                name=playlist["name"],
+                art_url=playlist["images"][0]["url"] if playlist.get("images") else None,
+                resource_type="playlist",
+                artist=playlist.get("owner", {}).get("display_name"),
+            ))
+
+        return ResourceListResponse(items=items,total=len(items))

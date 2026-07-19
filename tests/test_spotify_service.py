@@ -151,12 +151,14 @@ class TestSearch:
         self, spotify_service, mock_spotify_client, mock_user_fresh_token
     ):
         mock_spotify_client.search.return_value = {
-            "albums": {"items": [{"name": "Abbey Road", "uri": "spotify:album:xxx"}]}
+            "albums": {"items": [{"name": "Abbey Road", "uri": "spotify:album:xxx", "images": [], "artists": [{"name": "The Beatles"}]}]}
         }
 
         result = await spotify_service.search(mock_user_fresh_token, "abbey road", "album")
 
-        assert "albums" in result
+        assert result.total == 1
+        assert result.items[0].name == "Abbey Road"
+        assert result.items[0].resource_type == "album"
 
     async def test_calls_client_with_correct_params(
         self, spotify_service, mock_spotify_client, mock_user_fresh_token
