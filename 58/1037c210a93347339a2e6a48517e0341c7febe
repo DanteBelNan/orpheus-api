@@ -1,0 +1,61 @@
+app/services/auth_service.py
+  h_ad46f83cd497b0 1,10,15,17,25,27,30,39
+.env.example
+  h_ad46f83cd497b0 4-7,18
+docs/database.puml
+  s_1d787880d6f5c2::t_d10ccaf83cfda3 1-57
+app/config.py
+  h_ad46f83cd497b0 10-13,25
+tests/test_auth_service.py
+  s_1d787880d6f5c2::t_684f7b4bccfbd9 2,21-33,66-67,71,73,79-80,84,86,88,92-93,96,98,103-104,107,109,111,159-187
+app/controllers/auth_controller.py
+  h_ad46f83cd497b0 10,17-19,21-22,24
+app/services/vinyl_service.py
+  s_1d787880d6f5c2::t_f3f1e56052ce71 35,37,44-45
+  s_1d787880d6f5c2::t_af4046f72d5fd8 4-6
+CHANGELOG.md
+  s_1d787880d6f5c2::t_e004658c323264 34-43,50,53-54,56-58
+  s_1d787880d6f5c2::t_637cd896ea89f7 44-49
+db/init.sql
+  s_1d787880d6f5c2::t_2e02ed0df5e6c9 1-33
+docker-compose.yml
+  s_1d787880d6f5c2::t_b613b34adbad29 25
+app/clients/spotify_client.py
+  h_ad46f83cd497b0 8-40,46,68,85,102
+README.md
+  s_1d787880d6f5c2::t_47d8b45d47e69a 111,114
+  s_1d787880d6f5c2::t_88375578ed3ede 162
+app/main.py
+  s_1d787880d6f5c2::t_0b9dc087cb255d 1-2,4-7,14-29,35,40
+docs/architecture.puml
+  s_1d787880d6f5c2::t_8732ade1326d30 1-114
+app/controllers/device_controller.py
+  h_ad46f83cd497b0 4,79
+app/dependencies.py
+  h_ad46f83cd497b0 1,33-35,37
+  s_1d787880d6f5c2::t_e34b683cdc0b95 9-11
+  s_1d787880d6f5c2::t_86c4ca1d06762a 36
+app/controllers/play_controller.py
+  h_ad46f83cd497b0 17,46
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "581037c210a93347339a2e6a48517e0341c7febe",
+  "prompts": {},
+  "humans": {
+    "h_ad46f83cd497b0": {
+      "author": "dante beltran <dbeltrannanziot@frba.utn.edu.ar>"
+    }
+  },
+  "sessions": {
+    "s_1d787880d6f5c2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "133e613d-b690-4af6-836a-0022ea1b8a36",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "dante beltran <dbeltrannanziot@frba.utn.edu.ar>"
+    }
+  }
+}
