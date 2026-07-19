@@ -1,0 +1,50 @@
+CHANGELOG.md
+  s_1d787880d6f5c2::t_f3b016f63589a4 16-38
+app/clients/responses_template/me.player.play.json
+  h_ad46f83cd497b0 1
+app/clients/spotify_client.py
+  h_ad46f83cd497b0 64-87
+app/exceptions/base_exception.py
+  h_ad46f83cd497b0 20-28
+app/exceptions/vinyl_exception.py
+  h_ad46f83cd497b0 1,10-15
+app/dtos/play_dto.py
+  h_ad46f83cd497b0 1-5
+app/repositories/vinyl_repository.py
+  h_ad46f83cd497b0 24-29
+app/services/spotify_service.py
+  h_ad46f83cd497b0 47,66-70
+app/controllers/play_controller.py
+  h_ad46f83cd497b0 1-62
+app/main.py
+  h_ad46f83cd497b0 6,18
+README.md
+  s_1d787880d6f5c2::t_71ab396dc970db 118-119,121
+  s_1d787880d6f5c2::t_9388dfe2833b6b 170-171
+  s_1d787880d6f5c2::t_1f9f19512eaeae 219-226
+app/services/play_service.py
+  h_ad46f83cd497b0 1-23
+tests/test_play_service.py
+  s_1d787880d6f5c2::t_41560945a29f0c 1-161
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "013b96ebdfc7ce853a65b93f9c4b0f33668f3a25",
+  "prompts": {},
+  "humans": {
+    "h_ad46f83cd497b0": {
+      "author": "dante beltran <dbeltrannanziot@frba.utn.edu.ar>"
+    }
+  },
+  "sessions": {
+    "s_1d787880d6f5c2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "133e613d-b690-4af6-836a-0022ea1b8a36",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "dante beltran <dbeltrannanziot@frba.utn.edu.ar>"
+    }
+  }
+}
