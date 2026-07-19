@@ -14,6 +14,7 @@ from app.repositories.device_repository import DeviceRepository
 from app.clients.spotify_client import SpotifyClient
 from app.exceptions.base_exception import ExternalServiceError
 from app.services.play_service import PlayService
+from app.dependencies import verify_device_key
 
 router = APIRouter(prefix="/play", tags=["Play"])
 
@@ -42,6 +43,7 @@ async def play(
     play_service: PlayService = Depends(get_play_service),
     device_repo: DeviceRepository = Depends(get_device_repository),
     user_repo: UserRepository = Depends(get_user_repository),
+    _: None = Depends(verify_device_key),
 ):
     device = await device_repo.get_by_device_id(body.device_id)
     if device is None:

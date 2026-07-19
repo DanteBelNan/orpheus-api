@@ -108,8 +108,10 @@ Registra una Raspberry Pi bajo la cuenta de un usuario.
 
 #### `POST /devices/heartbeat`
 Llamado por la Pi en cada arranque. Actualiza `last_seen` y refresca el `spotify_device_id` consultando la lista de dispositivos activos en Spotify.
+- **Auth:** `X-Device-Key` header — shared key embebida en el binario de la Pi en compilación
 - **Request:** `{ "device_id": "b8:27:eb:xx:xx:xx" }`
 - **Respuesta:** `{ "status": "ok", "spotify_device_id": "abc123" }`
+- **Respuesta (key inválida):** 401
 
 ---
 
@@ -157,6 +159,7 @@ Elimina un vinilo. Solo el creador puede eliminar los suyos.
 #### `POST /play`
 Endpoint principal. Llamado por la Raspberry Pi al leer un tag. Implementa la lógica **Register or Play**.
 
+- **Auth:** `X-Device-Key` header — shared key embebida en el binario de la Pi en compilación
 - **Request:** `{ "device_id": "b8:27:eb:xx:xx:xx", "tag_id": "04:A2:B3:C4" }`
 - **Flujo:**
   1. Busca el `device_id` → identifica al usuario dueño del dispositivo

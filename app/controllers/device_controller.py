@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.dependencies import get_current_user
+from app.dependencies import get_current_user, verify_device_key
 from app.database import get_db
 from app.models.user import User
 from app.exceptions.base_exception import NotFoundError, AlreadyExistsError, ExternalServiceError
@@ -76,6 +76,7 @@ async def get_device(
 async def heartbeat(
     body: DeviceHeartbeatRequest,
     service: DeviceService = Depends(get_device_service),
+    _: None = Depends(verify_device_key),
 ):
     try:
         return await service.process_heartbeat(device_id=body.device_id)

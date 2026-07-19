@@ -1,0 +1,114 @@
+@startuml Orpheus API Architecture
+
+!theme plain
+skinparam backgroundColor #FAFAFA
+skinparam componentStyle rectangle
+
+skinparam component {
+    BackgroundColor #DDEEFF
+    BorderColor #336699
+}
+
+skinparam database {
+    BackgroundColor #FFEEDD
+    BorderColor #CC6600
+}
+
+skinparam cloud {
+    BackgroundColor #EEFFEE
+    BorderColor #339933
+}
+
+skinparam rectangle {
+    BackgroundColor #F5F5F5
+    BorderColor #999999
+}
+
+' ── Clients ────────────────────────────────────────────
+rectangle "Frontend (Vue.js)" as FRONT {
+    component "Browser" as BROWSER
+}
+
+rectangle "Raspberry Pi" as RPI {
+    component "Script Python/Go" as SCRIPT
+    component "Raspotify" as RASPOTIFY
+}
+
+' ── Orpheus API ─────────────────────────────────────────
+rectangle "Orpheus API (FastAPI)" as API {
+
+    rectangle "🔓 Public" as PUBLIC {
+        component "GET /ping" as PING
+        component "GET /auth/login" as LOGIN
+        component "GET /auth/exchange" as EXCHANGE
+    }
+
+    rectangle "🍪 JWT Cookie (Frontend)" as JWT_GROUP {
+        component "POST /devices/" as DEV_REG
+        component "GET /devices/" as DEV_LIST
+        component "GET /devices/{id}" as DEV_GET
+        component "GET /vinyls" as VIN_LIST
+        component "GET /vinyls/{id}" as VIN_GET
+        component "PATCH /vinyls/{id}" as VIN_PATCH
+        component "DELETE /vinyls/{id}" as VIN_DEL
+        component "GET /resources/search" as RES_SEARCH
+    }
+
+    rectangle "🔑 X-Device-Key (Raspberry Pi)" as KEY_GROUP {
+        component "POST /devices/heartbeat" as HEARTBEAT
+        component "POST /play" as PLAY
+    }
+}
+
+' ── External ────────────────────────────────────────────
+cloud "Spotify API" as SPOTIFY {
+    component "OAuth / Token" as SP_AUTH
+    component "Search" as SP_SEARCH
+    component "Player" as SP_PLAYER
+    component "Devices" as SP_DEVICES
+    component "Spotify Connect" as SP_CONNECT
+}
+
+database "MySQL" as DB
+
+' ── Connections ─────────────────────────────────────────
+
+BROWSER --> LOGIN : 1. GET /auth/login
+LOGIN --> SP_AUTH : 2. redirect to Spotify
+SP_AUTH --> EXCHANGE : 3. GET /auth/exchange?code=
+EXCHANGE --> DB : upsert user + tokens
+EXCHANGE --> BROWSER : 4. JWT cookie
+
+BROWSER --> JWT_GROUP : JWT cookie
+JWT_GROUP --> DB : read/write
+
+BROWSER --> RES_SEARCH : search albums/playlists
+RES_SEARCH --> SP_SEARCH : proxy search
+
+SCRIPT --> HEARTBEAT : X-Device-Key\n{device_id}
+HEARTBEAT --> SP_DEVICES : get active devices
+HEARTBEAT --> DB : update spotify_device_id
+
+SCRIPT --> PLAY : X-Device-Key\n{device_id, tag_id}
+PLAY --> DB : Register or Play logic
+PLAY --> SP_AUTH : refresh token if expired
+PLAY --> SP_PLAYER : PUT /v1/me/player/play
+
+SP_PLAYER --> RASPOTIFY : audio stream\n(Spotify Connect)
+RASPOTIFY --> SCRIPT : plays audio
+
+note right of KEY_GROUP
+  La Pi se autentica con una
+  shared key embebida en el
+  binario en compilación.
+  No requiere sesión de usuario.
+end note
+
+note right of PLAY
+  Register or Play:
+  201 → tag nuevo (chime)
+  202 → pendiente (pending sound)
+  200 → reproduciendo
+end note
+
+@enduml

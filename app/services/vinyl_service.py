@@ -1,6 +1,9 @@
 from app.repositories.vinyl_repository import VinylRepository
 from app.dtos.vinyl_dto import VinylListResponse, VinylResponse, VinylUpdateRequest
 from app.exceptions.vinyl_exception import VinylNotFoundError, VinylForbiddenError
+from app.logger import get_logger
+
+logger = get_logger(__name__)
 
 class VinylService:
     def __init__(self, vinyl_repository: VinylRepository):
@@ -29,8 +32,9 @@ class VinylService:
         if vinyl.created_by != user_id:
             raise VinylForbiddenError(vinyl_id,user_id)
         updated = await self.vinyl_repository.update(vinyl_id, **body.model_dump(exclude_none=True))
+        logger.info("Vinyl configured", extra={"vinyl_id": vinyl_id, "user_id": user_id, "spotify_uri": body.spotify_uri})
         return VinylResponse.model_validate(updated)
-    
+
     async def delete_vinyl_by_id(self, vinyl_id: int, user_id: int) -> None:
         vinyl = await self.vinyl_repository.get_by_id(vinyl_id)
         if vinyl is None:
@@ -38,3 +42,4 @@ class VinylService:
         if vinyl.created_by != user_id:
             raise VinylForbiddenError(vinyl_id,user_id)
         await self.vinyl_repository.delete(vinyl_id)
+        logger.info("Vinyl deleted", extra={"vinyl_id": vinyl_id, "user_id": user_id})

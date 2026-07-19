@@ -7,14 +7,21 @@ from app.database import get_db
 from app.repositories.user_repository import UserRepository
 from app.services.auth_service import AuthService
 from app.exceptions.base_exception import ExternalServiceError
+from app.clients.spotify_client import SpotifyClient
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
 async def get_user_repository(db: AsyncSession = Depends(get_db)) -> UserRepository:
     return UserRepository(db)
 
-async def get_auth_service(repo: UserRepository = Depends(get_user_repository)) -> AuthService:
-    return AuthService(repo)
+async def get_spotify_client() -> SpotifyClient:
+    return SpotifyClient()
+
+async def get_auth_service(
+        repo: UserRepository = Depends(get_user_repository),
+        client: SpotifyClient = Depends(get_spotify_client),
+    ) -> AuthService:
+    return AuthService(repo,client)
 
 #We redirect to the spotify login sendint them to our callback 
 @router.get("/login")

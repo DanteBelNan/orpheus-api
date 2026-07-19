@@ -1,0 +1,57 @@
+@startuml Orpheus Database Schema
+
+!define TABLE(name,desc) class name as "desc" << (T,#FFAAAA) >>
+!define PK(x) <u>x</u>
+!define FK(x) #x
+
+hide methods
+hide stereotypes
+
+TABLE(users, "users") {
+    PK(id) : INT AUTO_INCREMENT
+    email : VARCHAR(255) UNIQUE NOT NULL
+    spotify_user_id : VARCHAR(255) UNIQUE NOT NULL
+    spotify_refresh_token : TEXT NOT NULL
+    spotify_access_token : TEXT NOT NULL
+    token_expires_at : DATETIME NOT NULL
+    created_at : DATETIME NOT NULL
+}
+
+TABLE(devices, "devices") {
+    PK(id) : INT AUTO_INCREMENT
+    device_id : VARCHAR(255) UNIQUE NOT NULL
+    FK(user_id) : INT NOT NULL
+    spotify_device_id : VARCHAR(255)
+    name : VARCHAR(255) NOT NULL
+    last_seen : DATETIME
+    created_at : DATETIME NOT NULL
+}
+
+TABLE(vinyls, "vinyls") {
+    PK(id) : INT AUTO_INCREMENT
+    tag_id : VARCHAR(255) UNIQUE NOT NULL
+    FK(created_by) : INT NOT NULL
+    name : VARCHAR(255)
+    spotify_uri : VARCHAR(255)
+    album_name : VARCHAR(255)
+    album_art_url : TEXT
+    last_played : DATETIME
+    created_at : DATETIME NOT NULL
+}
+
+users "1" --o{ "0..*" devices : user_id
+users "1" --o{ "0..*" vinyls : created_by
+
+note bottom of vinyls
+  spotify_uri = NULL → pending
+  spotify_uri != NULL → configured
+  tag_id = hardware RFID UID (inmutable)
+end note
+
+note bottom of devices
+  device_id = MAC address de la Pi
+  spotify_device_id = ID interno de Raspotify en Spotify
+  (cacheado via heartbeat)
+end note
+
+@enduml

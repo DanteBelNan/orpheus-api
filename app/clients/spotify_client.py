@@ -5,12 +5,45 @@ from app.exceptions.spotify_exception import SpotifyError
 class SpotifyClient():
     def __init__(self):
         pass
+    async def exchange_code(self,code: str) -> dict:
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.post(
+                    settings.spotify_token_url,
+                    data={
+                        "grant_type": "authorization_code",
+                        "code": code,
+                        "redirect_uri": settings.spotify_redirect_uri,
+                    },
+                    headers={"Content-Type": "application/x-www-form-urlencoded"},
+                    auth=(settings.spotify_client_id, settings.spotify_client_secret),
+                )
+                response.raise_for_status()
+                return response.json()
+        except httpx.HTTPStatusError as e:
+            try:
+                detail = e.response.json().get("error", {}).get("message", e.response.text)
+            except Exception:
+                detail = e.response.text
+            raise SpotifyError(f"[Spotify API] failed to exchange code ({e.response.status_code}): {detail}")
+        
+    async def get_user_profile(self, access_token: str) -> dict:
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.get(
+                    f"{settings.spotify_api_url}/v1/me",
+                    headers={"Authorization": f"Bearer {access_token}"}
+                )
+                response.raise_for_status()
+                return response.json()
+        except httpx.HTTPStatusError:
+            raise SpotifyError("Failed to retrieve user profile")
 
     async def exchange_token(self, refresh_token: str) -> dict:
         try:
             async with httpx.AsyncClient() as client:
                 response = await client.post(
-                    "https://accounts.spotify.com/api/token",
+                    settings.spotify_token_url,
                     data={
                         "grant_type": "refresh_token",
                         "refresh_token": refresh_token,
@@ -32,7 +65,7 @@ class SpotifyClient():
         try:
             async with httpx.AsyncClient() as client:
                 response = await client.get(
-                    "https://api.spotify.com/v1/me/player/devices",
+                    f"{settings.spotify_api_url}/v1/me/player/devices",
                     headers={"Authorization": f"Bearer {access_token}"},
                 )
                 response.raise_for_status()
@@ -49,7 +82,7 @@ class SpotifyClient():
         try:
             async with httpx.AsyncClient() as client:
                 response = await client.get(
-                    "https://api.spotify.com/v1/search",
+                    f"{settings.spotify_api_url}/v1/search",
                     params={"q": query,"type": resource_type, "limit": 20},
                     headers={"Authorization": f"Bearer {access_token}"},
                 )
@@ -66,7 +99,7 @@ class SpotifyClient():
         try:
             async with httpx.AsyncClient() as client:
                 response = await client.put(
-                    "https://api.spotify.com/v1/me/player/play",
+                    f"{settings.spotify_api_url}/v1/me/player/play",
                     headers={"Authorization": f"Bearer {access_token}"},
                     params={"device_id": device_id},
                     json={

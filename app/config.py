@@ -7,6 +7,10 @@ class Settings(BaseSettings):
     spotify_client_id: str
     spotify_client_secret: str
     spotify_redirect_uri: str
+    spotify_auth_url: str
+    spotify_token_url: str
+    spotify_api_url: str
+    spotify_scopes: str
 
     #DB
     mysql_host: str
@@ -18,6 +22,7 @@ class Settings(BaseSettings):
     #JWT
     secret_key: str
     jwt_expire_hours: int = 12
+    device_api_key: str
 
 
     @property

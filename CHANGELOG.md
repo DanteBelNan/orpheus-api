@@ -31,10 +31,31 @@ All notable changes to the Orpheus API are documented here.
   user, maneja 3 casos via `JSONResponse` (200/201/202) y 502 para fallos de Spotify
 - `tests/test_play_service.py` — 9 tests cubriendo los 3 casos del Register or Play
 
+- `app/logger.py` — logger JSON estructurado con fallback stdlib. Logs en
+  `auth_service`, `device_service`, `spotify_service`, `play_service`,
+  `vinyl_service` y `dependencies` (warning en device key inválida)
+- `app/clients/spotify_client.py` — `exchange_code()` y `get_user_profile()`.
+  URLs hardcodeadas reemplazadas por variables de `settings`
+- `app/dependencies.py` — `verify_device_key` dependency para `X-Device-Key` header
+- `app/main.py` — startup check de conexión a DB con log de éxito o error
+- `app/config.py` — `spotify_auth_url`, `spotify_token_url`, `spotify_api_url`,
+  `spotify_scopes`, `device_api_key` en Settings
+- `tests/test_auth_service.py` — 73 tests pasando con mocks de `SpotifyClient`
+- `db/init.sql` — script de inicialización de DB con las tres tablas (`users`,
+  `devices`, `vinyls`) con sus constraints y foreign keys
+- `docs/database.puml` — diagrama ER de las tres tablas con relaciones y notas
+- `docs/architecture.puml` — diagrama de arquitectura mostrando los tres tipos
+  de auth (JWT / X-Device-Key / público), flujos de comunicación y integración
+  con Spotify
+
 ### Changed
 - README: Alembic removido del stack, `resource_type` corregido en Resources,
-  respuesta 503 corregida a 502 en Playback
+  respuesta 503 corregida a 502 en Playback, auth de endpoints documentada
+  (JWT / X-Device-Key / público)
 - `app/main.py` — play router registrado
+- `auth_service.py` — delega HTTP a `SpotifyClient`, elimina `httpx` y constantes
+- `auth_controller.py` — inyecta `SpotifyClient`
+- `POST /devices/heartbeat` y `POST /play` — requieren `X-Device-Key` header
 
 ---
 ## [0.4.2] - 2026-07-18
