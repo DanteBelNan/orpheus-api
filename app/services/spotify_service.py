@@ -44,7 +44,7 @@ class SpotifyService():
         raw =  await self.spotify_client.search(access_token,query,resource_type)
         items = []
 
-        for album in raw.get('albums', {}).get("items", {}):
+        for album in raw.get('albums', {}).get("items", []):
             items.append(ResourceResponse(
                 spotify_uri=album["uri"],
                 name=album["name"],
@@ -63,3 +63,8 @@ class SpotifyService():
             ))
 
         return ResourceListResponse(items=items,total=len(items))
+    
+    @with_fresh_token
+    async def play(self, access_token: str, device_id: str, spotify_uri: str, song_index: int = 0, ms_delay: int = 0):    
+
+        return await self.spotify_client.play(access_token,device_id,spotify_uri,song_index,ms_delay)

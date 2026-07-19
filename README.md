@@ -9,7 +9,6 @@ API REST de Project Orpheus. Construida con **Python + FastAPI**, base de datos 
 - Python 3.12
 - FastAPI + Uvicorn
 - SQLAlchemy (async) + aiomysql
-- Alembic (migraciones)
 - python-jose (firma y validación de JWT)
 - Docker + docker-compose
 
@@ -116,10 +115,10 @@ Llamado por la Pi en cada arranque. Actualiza `last_seen` y refresca el `spotify
 
 ### Resources
 
-#### `GET /resources/search?q={query}&type=album,playlist`
-Proxy hacia la Spotify Search API. El backend realiza la búsqueda usando el `access_token` del usuario autenticado y devuelve los resultados al frontend.
+#### `GET /resources/search?q={query}&resource_type=album,playlist`
+Proxy hacia la Spotify Search API. El backend realiza la búsqueda usando el `access_token` del usuario autenticado y devuelve los resultados al frontend. `resource_type` defaultea a `"album,playlist"` si no se especifica.
 - **Auth:** sesión de usuario requerida
-- **Respuesta:** `[{ "spotify_uri": "spotify:album:xxx", "name": "...", "art_url": "...", "type": "album|playlist" }]`
+- **Respuesta:** `[{ "spotify_uri": "spotify:album:xxx", "name": "...", "art_url": "...", "resource_type": "album|playlist", "artist": "..." }]`
 
 ---
 
@@ -168,8 +167,8 @@ Endpoint principal. Llamado por la Raspberry Pi al leer un tag. Implementa la l�
 - **Response (nuevo):** `{ "status": "registered", "vinyl_id": 7 }` → 201
 - **Response (pendiente):** `{ "status": "pending", "vinyl_id": 7 }` → 202
 - **Response (reproduciendo):** `{ "status": "playing", "vinyl": "..." }` → 200
-- **Response (device no registrado):** `{ "error": "device_not_found" }` → 404 *(Pi reproduce sonido de error)*
-- **Response (Raspotify offline):** `{ "error": "device_offline" }` → 503 *(Pi reproduce sonido de error)*
+- **Response (device no registrado):** `{ "detail": "Device not found" }` → 404 *(Pi reproduce sonido de error)*
+- **Response (Spotify o Raspotify offline):** `{ "detail": "..." }` → 502 *(Pi reproduce sonido de error)*
 
 ---
 
@@ -214,6 +213,14 @@ Documentación automática en `http://localhost:8000/docs`
 | `MYSQL_DATABASE` | Nombre de la base de datos (ej. `orpheus`) |
 | `SECRET_KEY` | Para firma de JWT (HS256) |
 | `JWT_EXPIRE_HOURS` | Duración del JWT en horas (por defecto: 12) |
+
+---
+
+## Post-MVP: Reanudar Vinilo desde donde se quedó
+
+Cuando se reproduce un vinilo, guardar en la tabla `vinyls` la canción y el timestamp en el que se dejó de escuchar (`last_song_index`, `last_position_ms`). La próxima vez que se escanee ese tag, el endpoint `POST /play` pasaría esos valores al cliente de Spotify (`offset.position` y `position_ms`) en lugar de arrancar desde el inicio.
+
+El `SpotifyClient.play()` ya acepta `song_index` y `ms_delay` como parámetros opcionales con defaults en 0, dejando la puerta abierta para esta feature sin cambios de interfaz.
 
 ---
 

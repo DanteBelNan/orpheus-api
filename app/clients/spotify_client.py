@@ -61,4 +61,28 @@ class SpotifyClient():
             except Exception:
                 detail = e.response.text
             raise SpotifyError(f"[Spotify API] failed to search ({e.response.status_code}): {detail}")
+        
+    async def play(self, access_token: str, device_id: str, spotify_uri: str, song_index: int = 0, ms_delay: int = 0) -> None:
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.put(
+                    "https://api.spotify.com/v1/me/player/play",
+                    headers={"Authorization": f"Bearer {access_token}"},
+                    params={"device_id": device_id},
+                    json={
+                        "context_uri": spotify_uri,
+                        "offset": {
+                            "position": song_index,
+                        },
+                        "position_ms": ms_delay
+                    }
+                )
+                response.raise_for_status()
+                return
+        except httpx.HTTPStatusError as e:
+            try:
+                detail = e.response.json().get("error", {}).get("message", e.response.text)
+            except Exception:
+                detail = e.response.text
+            raise SpotifyError(f"[Spotify API] failed to play resource ({e.response.status_code}): {detail}")            
 

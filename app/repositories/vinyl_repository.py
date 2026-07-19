@@ -21,6 +21,12 @@ class VinylRepository:
         )
         return result.scalar_one_or_none()
     
+    async def get_by_created_by(self, created_by: int) -> list[Vinyl]:
+        results = await self.db.execute(
+            select(Vinyl).where(Vinyl.created_by == created_by)
+        )
+        return results.scalars().all()
+    
     async def get_all(
         self, 
         created_by: int | None = None,

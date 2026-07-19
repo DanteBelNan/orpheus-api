@@ -13,6 +13,30 @@ All notable changes to the Orpheus API are documented here.
 ---
 ## [Unreleased]
 ---
+## [1.0.0] - 2026-07-19 — MVP Completo
+
+### Added
+- `app/services/play_service.py` — lógica Register or Play: tag nuevo → crea
+  vinilo + lanza `VinylCreated` (201), tag pendiente → lanza `VinylPending` (202),
+  tag configurado → refresca token + llama `SpotifyService.play()` → 200
+- `app/clients/spotify_client.py::play()` — `PUT /v1/me/player/play` con
+  `device_id` como query param y `context_uri`, `offset.position`, `position_ms`
+  en el body. Soporta `song_index` y `ms_delay` para futura feature de reanudación
+- `app/services/spotify_service.py::play()` — delegación al client con
+  `@with_fresh_token` decorator
+- `app/exceptions/base_exception.py` — `PendingError` y `Registered` como bases
+- `app/exceptions/vinyl_exception.py` — `VinylCreated`, `VinylPending`
+- `app/dtos/play_dto.py` — `PlayRequest` con `device_id` y `tag_id`
+- `app/controllers/play_controller.py` — `POST /play/` sin JWT, busca device →
+  user, maneja 3 casos via `JSONResponse` (200/201/202) y 502 para fallos de Spotify
+- `tests/test_play_service.py` — 9 tests cubriendo los 3 casos del Register or Play
+
+### Changed
+- README: Alembic removido del stack, `resource_type` corregido en Resources,
+  respuesta 503 corregida a 502 en Playback
+- `app/main.py` — play router registrado
+
+---
 ## [0.4.2] - 2026-07-18
 
 ### Added
