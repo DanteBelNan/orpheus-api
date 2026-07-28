@@ -22,6 +22,8 @@ All notable changes to the Orpheus API are documented here.
 - `GET /auth/exchange` now returns the authenticated `user` payload in addition
   to setting the `access_token` cookie, allowing the frontend callback flow to
   initialize user state immediately after Spotify OAuth.
+- `GET /auth/me` returns the authenticated user from the existing JWT cookie,
+  allowing the frontend to restore session state after page reloads.
 - `DeviceForbiddenError` for device ownership violations.
 - `tests/test_play_service.py` updated to cover the new PlayService flow:
   device lookup by MAC, owner lookup, missing device, missing owner, missing
@@ -39,12 +41,10 @@ All notable changes to the Orpheus API are documented here.
   validates that `spotify_device_id` is available, and calls Spotify using the
   cached `spotify_device_id` instead of the MAC address.
 - README updated to distinguish current MVP backend gaps from Post-MVP items,
-  clarify `spotify_device_id` cache behavior, and move token encryption/device
-  dynamic identity to Post-MVP.
+  document `/auth/me`, clarify `spotify_device_id` cache behavior, and move
+  token encryption/device dynamic identity to Post-MVP.
 
 ### Deferred
-- `GET /auth/me` is planned for `1.0.2` to let the frontend restore authenticated
-  user state from the existing cookie after page reloads.
 - Spotify device retry/refetch after playback failure remains deferred.
 
 ---

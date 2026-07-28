@@ -69,7 +69,13 @@ Spotify redirige aquí tras la aprobación del usuario.
 - **Upsert** en tabla `users`: crea el usuario si es nuevo, actualiza tokens si ya existe
 - Genera un **JWT** firmado con `SECRET_KEY` conteniendo `{ user_id, exp }`
 - Setea el JWT como cookie `httpOnly` + `SameSite=Lax`. En producción debe configurarse también `Secure`.
-- **Respuesta:** nos trae la cookie para que la agreguemos desde nuestro frontend
+- **Respuesta:** `{ "message": "Authenticated successfully", "user": { "id": 1, "email": "...", "spotify_user_id": "...", "created_at": "..." } }`
+
+#### `GET /auth/me`
+Devuelve el usuario autenticado actual a partir de la cookie JWT. Usado por el frontend para restaurar sesión al recargar la app.
+- **Auth:** sesión de usuario requerida
+- **Respuesta:** `{ "id": 1, "email": "...", "spotify_user_id": "...", "created_at": "..." }` → 200
+- **Respuesta (sin sesión o token inválido):** 401
 
 ---
 
@@ -216,7 +222,7 @@ El `SpotifyClient.play()` ya acepta `song_index` y `ms_delay` como parámetros o
 
 ## Estado actual del código
 
-- Implementado: OAuth Spotify con `/auth/login` y `/auth/exchange`.
+- Implementado: OAuth Spotify con `/auth/login`, `/auth/exchange` y `/auth/me`.
 - Implementado: sesión con JWT en cookie `httpOnly` y `SameSite=Lax`; falta activar `Secure` para producción.
 - Implementado: endpoints de dispositivos, vinilos, búsqueda de recursos y `/play`.
 - Gap del MVP: `/play` debe usar el `spotify_device_id` cacheado en `devices.spotify_device_id` al llamar a Spotify. El código actual todavía recibe la MAC address como `device_id` del request y debe resolverla al ID interno de Spotify antes de ejecutar `PUT /v1/me/player/play`.
