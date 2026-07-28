@@ -13,6 +13,41 @@ All notable changes to the Orpheus API are documented here.
 ---
 ## [Unreleased]
 ---
+## [1.0.1] - 2026-07-28 — Pre-MVP Backend Alignment
+
+> Pre-MVP iteration. This version tightens backend contracts required by the
+> frontend MVP, but the product is not considered end-to-end MVP complete yet.
+
+### Added
+- `GET /auth/exchange` now returns the authenticated `user` payload in addition
+  to setting the `access_token` cookie, allowing the frontend callback flow to
+  initialize user state immediately after Spotify OAuth.
+- `DeviceForbiddenError` for device ownership violations.
+- `tests/test_play_service.py` updated to cover the new PlayService flow:
+  device lookup by MAC, owner lookup, missing device, missing owner, missing
+  `spotify_device_id`, and playback using the cached Spotify device id.
+- `tests/test_device_service.py` now covers device ownership checks.
+
+### Changed
+- `GET /devices/{device_id}` now verifies that the requested device belongs to
+  the authenticated user before returning it. Ownership failures are surfaced as
+  404 from the controller to avoid disclosing device existence.
+- `POST /play/` controller no longer performs device/user repository lookups
+  directly. It delegates the full Register or Play workflow to `PlayService`.
+- `PlayService` now receives `DeviceRepository` and `UserRepository`, resolves
+  the Raspberry MAC address to the registered device, loads the device owner,
+  validates that `spotify_device_id` is available, and calls Spotify using the
+  cached `spotify_device_id` instead of the MAC address.
+- README updated to distinguish current MVP backend gaps from Post-MVP items,
+  clarify `spotify_device_id` cache behavior, and move token encryption/device
+  dynamic identity to Post-MVP.
+
+### Deferred
+- `GET /auth/me` is planned for `1.0.2` to let the frontend restore authenticated
+  user state from the existing cookie after page reloads.
+- Spotify device retry/refetch after playback failure remains deferred.
+
+---
 ## [1.0.0] - 2026-07-19 — MVP Completo
 
 ### Added

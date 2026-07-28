@@ -1,5 +1,9 @@
 from app.repositories.vinyl_repository import VinylRepository
 from app.repositories.user_repository import UserRepository
+from app.repositories.device_repository import DeviceRepository
+from app.exceptions.user_exception import UserNotFoundError
+from app.exceptions.device_exception import DeviceNotFoundError
+from app.exceptions.base_exception import ExternalServiceError
 from app.services.spotify_service import SpotifyService
 from app.models.user import User
 from app.exceptions.vinyl_exception import VinylPending, VinylCreated
@@ -12,12 +16,26 @@ class PlayService:
             self, 
             vinyl_repository: VinylRepository, 
             spotify_service: SpotifyService,
+            user_repository: UserRepository,
+            device_repository: DeviceRepository,
         ):
         self.vinyl_repository = vinyl_repository
         self.spotify_service = spotify_service
+        self.user_repository = user_repository
+        self.device_repository = device_repository
 
-    async def play(self, user: User, device_id: str, tag_id: str, song_index = 0, ms_delay = 0):
+    async def play(self, device_id: str, tag_id: str, song_index = 0, ms_delay = 0):
+        device = await self.device_repository.get_by_device_id(device_id)
+        if device is None:
+            raise DeviceNotFoundError(device_id)
+        if device.spotify_device_id is None:
+            raise ExternalServiceError("Spotify", "Device is not available")
+        
+        user = await self.user_repository.get_by_id(device.user_id)
+        if user is None:
+            raise UserNotFoundError(device.user_id)
         logger.info("Tag scanned", extra={"tag_id": tag_id, "device_id": device_id, "user_id": user.id})
+
 
         vinyl = await self.vinyl_repository.get_by_tag_id(tag_id)
         if vinyl is None:
@@ -30,4 +48,4 @@ class PlayService:
             raise VinylPending(vinyl.id, user.id)
 
         logger.info("Playing vinyl", extra={"vinyl_id": vinyl.id, "spotify_uri": vinyl.spotify_uri, "device_id": device_id})
-        return await self.spotify_service.play(user, device_id, vinyl.spotify_uri, song_index, ms_delay)
+        return await self.spotify_service.play(user, device.spotify_device_id, vinyl.spotify_uri, song_index, ms_delay)

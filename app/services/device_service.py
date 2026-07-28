@@ -1,7 +1,7 @@
 from app.repositories.device_repository import DeviceRepository
 from app.repositories.user_repository import UserRepository
 from app.dtos.device_dto import DeviceResponse, DevicesListResponse, DeviceHeartbeatResponse
-from app.exceptions.device_exception import DeviceAlreadyRegisteredError, DeviceNotFoundError
+from app.exceptions.device_exception import DeviceAlreadyRegisteredError, DeviceNotFoundError, DeviceForbiddenError
 from app.exceptions.user_exception import UserNotFoundError
 from app.services.spotify_service import SpotifyService
 from app.logger import get_logger
@@ -23,10 +23,12 @@ class DeviceService:
         )
     
     #Retrieves a device by their device_id (MAC id)
-    async def get_device_by_id(self,device_id: str) -> DeviceResponse:
+    async def get_device_by_id(self,device_id: str, user_id: int) -> DeviceResponse:
         device = await self.device_repository.get_by_device_id(device_id)
         if not device:
             raise DeviceNotFoundError(device_id)
+        if device.user_id != user_id:
+            raise DeviceForbiddenError(device_id,user_id)
         return DeviceResponse.model_validate(device)
 
     #Creates a new device

@@ -35,9 +35,12 @@ async def exchange(
     service: AuthService = Depends(get_auth_service)
 ):
     try:
-        jwt_token, _ = await service.handle_callback(code)
+        jwt_token, user, = await service.handle_callback(code)
 
-        response = JSONResponse(content={"message": "Authenticated successfully"})
+        response = JSONResponse(content={
+            "message": "Authenticated successfully",
+            "user": user.model_dump(mode="json"),
+        })
         response.set_cookie(
             key="access_token",
             value=jwt_token,
@@ -48,3 +51,9 @@ async def exchange(
         return response
     except ExternalServiceError as e:
         raise HTTPException(status_code=502, detail=str(e))
+    
+#Get current authenticated user
+# @router.get("/me")
+# async def me(
+
+# )

@@ -22,7 +22,7 @@ API REST de Project Orpheus. Construida con **Python + FastAPI**, base de datos 
 | id | INT PK AUTO_INCREMENT | |
 | email | VARCHAR(255) UNIQUE | Obtenido de Spotify `GET /v1/me` — requiere scope `user-read-email` |
 | spotify_user_id | VARCHAR(255) | Obtenido de Spotify `GET /v1/me` — identificador único del usuario en Spotify |
-| spotify_refresh_token | TEXT | Almacenado encriptado |
+| spotify_refresh_token | TEXT | MVP: almacenado en DB; Post-MVP: cifrado en reposo |
 | spotify_access_token | TEXT | De corta duración, cacheado |
 | token_expires_at | DATETIME | Utilizado por el middleware de refresco de token |
 | created_at | DATETIME | |
@@ -36,19 +36,6 @@ API REST de Project Orpheus. Construida con **Python + FastAPI**, base de datos 
 | spotify_device_id | VARCHAR(255) | ID interno de Spotify del dispositivo Raspotify, cacheado |
 | name | VARCHAR(255) | Nombre descriptivo (ej. "Orpheus #1") |
 | last_seen | DATETIME | Actualizado en cada heartbeat |
-| created_at | DATETIME | |
-
-### `playlists`
-Recursos de Spotify (álbumes o playlists) precargados por el usuario. Usados como fuente local en `GET /resources/search` para no depender de Spotify en tiempo real al configurar un vinilo.
-
-| Column | Type | Notes |
-|---|---|---|
-| id | INT PK AUTO_INCREMENT | |
-| user_id | INT FK → users.id | Dueño del recurso precargado |
-| spotify_uri | VARCHAR(255) | e.g. `spotify:album:xxx` o `spotify:playlist:xxx` |
-| name | VARCHAR(255) | Nombre del álbum o playlist |
-| art_url | TEXT | URL de la imagen de portada |
-| type | ENUM('album','playlist') | Tipo de recurso |
 | created_at | DATETIME | |
 
 ### `vinyls`
@@ -81,7 +68,7 @@ Spotify redirige aquí tras la aprobación del usuario.
 - Llama a `GET /v1/me` de Spotify para obtener `spotify_user_id` y `email`
 - **Upsert** en tabla `users`: crea el usuario si es nuevo, actualiza tokens si ya existe
 - Genera un **JWT** firmado con `SECRET_KEY` conteniendo `{ user_id, exp }`
-- Setea el JWT como cookie `httpOnly` + `Secure`
+- Setea el JWT como cookie `httpOnly` + `SameSite=Lax`. En producción debe configurarse también `Secure`.
 - **Respuesta:** nos trae la cookie para que la agreguemos desde nuestro frontend
 
 ---
@@ -107,7 +94,7 @@ Registra una Raspberry Pi bajo la cuenta de un usuario.
 - **Respuesta (device ya registrado):** 409
 
 #### `POST /devices/heartbeat`
-Llamado por la Pi en cada arranque. Actualiza `last_seen` y refresca el `spotify_device_id` consultando la lista de dispositivos activos en Spotify.
+Llamado por la Pi en cada arranque. Actualiza `last_seen` y refresca el `spotify_device_id` consultando la lista de dispositivos activos en Spotify. El `spotify_device_id` se cachea para reducir latencia, pero Spotify no garantiza que sea permanente; si falla playback por dispositivo no encontrado/restringido, el backend debe refrescarlo y reintentar.
 - **Auth:** `X-Device-Key` header — shared key embebida en el binario de la Pi en compilación
 - **Request:** `{ "device_id": "b8:27:eb:xx:xx:xx" }`
 - **Respuesta:** `{ "status": "ok", "spotify_device_id": "abc123" }`
@@ -208,7 +195,7 @@ Documentación automática en `http://localhost:8000/docs`
 |---|---|
 | `SPOTIFY_CLIENT_ID` | Desde el Spotify Developer Dashboard |
 | `SPOTIFY_CLIENT_SECRET` | Desde el Spotify Developer Dashboard |
-| `SPOTIFY_REDIRECT_URI` | ej. `http://localhost:8000/auth/callback` |
+| `SPOTIFY_REDIRECT_URI` | URL registrada en Spotify para volver al frontend, ej. `http://localhost:5173/auth/callback` |
 | `MYSQL_HOST` | Host de la DB (usar `db` dentro de docker-compose) |
 | `MYSQL_PORT` | Por defecto 3306 |
 | `MYSQL_USER` | Usuario de la DB |
@@ -224,6 +211,29 @@ Documentación automática en `http://localhost:8000/docs`
 Cuando se reproduce un vinilo, guardar en la tabla `vinyls` la canción y el timestamp en el que se dejó de escuchar (`last_song_index`, `last_position_ms`). La próxima vez que se escanee ese tag, el endpoint `POST /play` pasaría esos valores al cliente de Spotify (`offset.position` y `position_ms`) en lugar de arrancar desde el inicio.
 
 El `SpotifyClient.play()` ya acepta `song_index` y `ms_delay` como parámetros opcionales con defaults en 0, dejando la puerta abierta para esta feature sin cambios de interfaz.
+
+---
+
+## Estado actual del código
+
+- Implementado: OAuth Spotify con `/auth/login` y `/auth/exchange`.
+- Implementado: sesión con JWT en cookie `httpOnly` y `SameSite=Lax`; falta activar `Secure` para producción.
+- Implementado: endpoints de dispositivos, vinilos, búsqueda de recursos y `/play`.
+- Gap del MVP: `/play` debe usar el `spotify_device_id` cacheado en `devices.spotify_device_id` al llamar a Spotify. El código actual todavía recibe la MAC address como `device_id` del request y debe resolverla al ID interno de Spotify antes de ejecutar `PUT /v1/me/player/play`.
+- Gap del MVP: si Spotify rechaza playback por dispositivo no encontrado/restringido, el backend debe refrescar `spotify_device_id` desde `GET /v1/me/player/devices` y reintentar una vez.
+- Gap del MVP: `GET /devices/{device_id}` debe validar que el dispositivo consultado pertenezca al usuario autenticado.
+
+---
+
+## Post-MVP: Seguridad de Tokens Spotify
+
+Cifrar en reposo `spotify_refresh_token` y cualquier token persistido en DB. El MVP usa almacenamiento directo en base de datos para avanzar rápido, pero el despliegue público debería incorporar cifrado antes de ampliar usuarios.
+
+---
+
+## Post-MVP: Identidad Dinámica de Dispositivo
+
+Reemplazar el `X-Device-Key` compartido por una credencial por dispositivo, idealmente emitida durante un flujo de pairing. Una opción posible es que cada Raspberry tenga un secreto propio y obtenga tokens firmados de corta duración para llamar a `/play` y `/devices/heartbeat`.
 
 ---
 
@@ -255,4 +265,3 @@ Permite al usuario guardar álbumes y playlists de Spotify localmente para tener
 ## Post-MVP: Servicio de Notificaciones por Email
 
 Cuando `/play` registra un tag nuevo (201), publicará un evento asincrónico para notificar al `created_by` por email. El mecanismo concreto de cola/worker queda a definir (opciones: background tasks nativas de FastAPI, Redis pub/sub, u otro mecanismo liviano), pero el contrato es claro: la API principal no bloquea la respuesta a la Pi esperando el envío del email. El worker consume el evento de forma independiente y envía via AWS SES o SendGrid con el mensaje: *"Detectamos un nuevo mini-vinilo en tu dispositivo Orpheus. Ingresá a la plataforma cuando quieras para asociarle tu álbum favorito."*
-

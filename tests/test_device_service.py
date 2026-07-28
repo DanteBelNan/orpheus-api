@@ -4,7 +4,11 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 
 from app.services.device_service import DeviceService
-from app.exceptions.device_exception import DeviceAlreadyRegisteredError, DeviceNotFoundError
+from app.exceptions.device_exception import (
+    DeviceAlreadyRegisteredError,
+    DeviceForbiddenError,
+    DeviceNotFoundError,
+)
 from app.exceptions.user_exception import UserNotFoundError
 
 
@@ -104,7 +108,10 @@ class TestGetDeviceById:
     async def test_returns_device_response_when_found(self, device_service, mock_device_repository, mock_db_device):
         mock_device_repository.get_by_device_id.return_value = mock_db_device
 
-        result = await device_service.get_device_by_id(device_id="b8:27:eb:3a:11:cc")
+        result = await device_service.get_device_by_id(
+            device_id="b8:27:eb:3a:11:cc",
+            user_id=1,
+        )
 
         assert result.device_id == "b8:27:eb:3a:11:cc"
         assert result.name == "Orpheus #1"
@@ -113,7 +120,22 @@ class TestGetDeviceById:
         mock_device_repository.get_by_device_id.return_value = None
 
         with pytest.raises(DeviceNotFoundError):
-            await device_service.get_device_by_id(device_id="00:00:00:00:00:00")
+            await device_service.get_device_by_id(
+                device_id="00:00:00:00:00:00",
+                user_id=1,
+            )
+
+    async def test_raises_forbidden_when_device_belongs_to_other_user(
+        self, device_service, mock_device_repository, mock_db_device
+    ):
+        mock_db_device.user_id = 2
+        mock_device_repository.get_by_device_id.return_value = mock_db_device
+
+        with pytest.raises(DeviceForbiddenError):
+            await device_service.get_device_by_id(
+                device_id="b8:27:eb:3a:11:cc",
+                user_id=1,
+            )
 
 
 class TestCreateDevice:

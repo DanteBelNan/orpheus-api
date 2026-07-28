@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import JSONResponse
 from app.exceptions.vinyl_exception import VinylCreated, VinylPending
+from app.exceptions.base_exception import NotFoundError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
@@ -34,27 +35,19 @@ async def get_spotify_service(
 async def get_play_service(
     vinyl_repository: VinylRepository = Depends(get_vinyl_repository),
     spotify_service: SpotifyService = Depends(get_spotify_service),
+    user_repository: UserRepository = Depends(get_user_repository),
+    device_repository: DeviceRepository = Depends(get_device_repository)
 ) -> PlayService:
-    return PlayService(vinyl_repository,spotify_service)
+    return PlayService(vinyl_repository,spotify_service,user_repository,device_repository)
 
 @router.post("/")
 async def play(
     body: PlayRequest,
     play_service: PlayService = Depends(get_play_service),
-    device_repo: DeviceRepository = Depends(get_device_repository),
-    user_repo: UserRepository = Depends(get_user_repository),
     _: None = Depends(verify_device_key),
 ):
-    device = await device_repo.get_by_device_id(body.device_id)
-    if device is None:
-        raise HTTPException(status_code=404, detail="Device not found")
-    
-    user = await user_repo.get_by_id(device.user_id)
-    if user is None:
-        raise HTTPException(status_code=404, detail="User not found")
-    
     try:
-        await play_service.play(user, body.device_id, body.tag_id)
+        await play_service.play(body.device_id, body.tag_id)
         return JSONResponse(status_code=200, content={"status": "playing"})
     except VinylCreated as e:
         return JSONResponse(status_code=201, content={"status": "registered", "detail": str(e)})
@@ -62,3 +55,5 @@ async def play(
         return JSONResponse(status_code=202, content={"status": "pending", "detail": str(e)})
     except ExternalServiceError as e:
         raise HTTPException(status_code=502, detail=str(e))
+    except NotFoundError as e:
+        raise HTTPException(status_code=404,detail=str(e))

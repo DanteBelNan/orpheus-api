@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.dependencies import get_current_user, verify_device_key
 from app.database import get_db
 from app.models.user import User
-from app.exceptions.base_exception import NotFoundError, AlreadyExistsError, ExternalServiceError
+from app.exceptions.base_exception import NotFoundError, AlreadyExistsError, ExternalServiceError, ForbiddenError
 
 from app.repositories.device_repository import DeviceRepository
 from app.repositories.user_repository import UserRepository
@@ -60,7 +60,7 @@ async def get_devices_of_current_user(
         user_id=current_user.id
     )
 
-#Gets a specific device given his MAC id
+#Gets a specific device given his MAC id (it has to be from the authenticated user)
 @router.get("/{device_id}", response_model=DeviceResponse, status_code=200)
 async def get_device(
         device_id: str,
@@ -68,8 +68,8 @@ async def get_device(
         current_user: User = Depends(get_current_user)
 ):
     try:
-        return await service.get_device_by_id(device_id=device_id)
-    except NotFoundError as e:
+        return await service.get_device_by_id(device_id=device_id,user_id=current_user.id)
+    except (NotFoundError, ForbiddenError) as e:
         raise HTTPException(status_code=404, detail=str(e))
     
 @router.post("/heartbeat", response_model=DeviceHeartbeatResponse, status_code=200)
