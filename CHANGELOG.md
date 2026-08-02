@@ -13,6 +13,22 @@ All notable changes to the Orpheus API are documented here.
 ---
 ## [Unreleased]
 ---
+## [1.0.2] - 2026-08-02 — CORS, Spotify Search & Play Workflow Adjustments
+
+### Added
+- Configuración estricta de `CORS_ORIGINS` (`cors_origins: str`) parametrizada en `app/config.py` y registrada en `CORSMiddleware` en `app/main.py` para permitir peticiones cross-origin desde el frontend (`http://localhost:5173`, `http://127.0.0.1:5173`).
+- Agregada la variable `CORS_ORIGINS` a los archivos `.env` y `.env.example`.
+
+### Changed
+- `PlayService`: Se postergó la validación de `spotify_device_id` a la fase de reproducción, permitiendo registrar nuevos tags RFID como vinilos pendientes sin requerir una sesión activa de reproducción de Spotify en ese instante.
+- `SpotifyClient`: Se ajustó el límite de búsqueda a `10` por tipo en consultas múltiples (`album,playlist`) para cumplir con las restricciones de la API de Spotify, y se removieron barras finales sobrantes en la URL base.
+- `DeviceService`: Se corrigió la invocación de `get_spotify_device_id` en el método `process_heartbeat`.
+
+### Fixed
+- `SpotifyService`: Se agregaron chequeos defensivos nulos al parsear resultados de búsqueda (`albums` y `playlists`) para evitar excepciones `TypeError` cuando la API de Spotify retorna ítems vacíos (`null`).
+
+---
+
 ## [1.0.1] - 2026-07-28 — Pre-MVP Backend Alignment
 
 > Pre-MVP iteration. This version tightens backend contracts required by the
