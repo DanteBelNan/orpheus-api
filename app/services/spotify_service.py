@@ -48,25 +48,36 @@ class SpotifyService():
         raw =  await self.spotify_client.search(access_token,query,resource_type)
         items = []
 
-        for album in raw.get('albums', {}).get("items", []):
+        albums_data = raw.get('albums') or {}
+        for album in albums_data.get("items") or []:
+            if not album:
+                continue
+            images = album.get("images") or []
+            artists = album.get("artists") or []
             items.append(ResourceResponse(
-                spotify_uri=album["uri"],
-                name=album["name"],
-                art_url=album["images"][0]["url"] if album.get("images") else None,
+                spotify_uri=album.get("uri", ""),
+                name=album.get("name", ""),
+                art_url=images[0]["url"] if images else None,
                 resource_type="album",
-                artist=album["artists"][0]["name"] if album.get("artists") else None,
+                artist=artists[0]["name"] if artists else None,
             ))
 
-        for playlist in raw.get("playlists", {}).get("items", []):
+        playlists_data = raw.get("playlists") or {}
+        for playlist in playlists_data.get("items") or []:
+            if not playlist:
+                continue
+            images = playlist.get("images") or []
+            owner = playlist.get("owner") or {}
             items.append(ResourceResponse(
-                spotify_uri=playlist["uri"],
-                name=playlist["name"],
-                art_url=playlist["images"][0]["url"] if playlist.get("images") else None,
+                spotify_uri=playlist.get("uri", ""),
+                name=playlist.get("name", ""),
+                art_url=images[0]["url"] if images else None,
                 resource_type="playlist",
-                artist=playlist.get("owner", {}).get("display_name"),
+                artist=owner.get("display_name"),
             ))
 
         return ResourceListResponse(items=items,total=len(items))
+
     
     @with_fresh_token
     async def play(self, access_token: str, device_id: str, spotify_uri: str, song_index: int = 0, ms_delay: int = 0):    

@@ -77,15 +77,16 @@ class SpotifyClient():
             except Exception:
                 detail = e.response.text
             raise SpotifyError(f"[Spotify API] failed to get devices ({e.response.status_code}): {detail}")
-        
-    async def search(self, access_token: str, query: str, resource_type: str) -> dict:
+    async def search(self, access_token: str, query: str, resource_type: str, limit: int = 10) -> dict:
         try:
             async with httpx.AsyncClient() as client:
+                url = f"{settings.spotify_api_url.rstrip('/')}/v1/search"
                 response = await client.get(
-                    f"{settings.spotify_api_url}/v1/search",
-                    params={"q": query,"type": resource_type, "limit": 20},
+                    url,
+                    params={"q": query, "type": resource_type, "limit": limit},
                     headers={"Authorization": f"Bearer {access_token}"},
                 )
+
                 response.raise_for_status()
                 return response.json()
         except httpx.HTTPStatusError as e:

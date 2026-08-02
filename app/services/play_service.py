@@ -28,8 +28,6 @@ class PlayService:
         device = await self.device_repository.get_by_device_id(device_id)
         if device is None:
             raise DeviceNotFoundError(device_id)
-        if device.spotify_device_id is None:
-            raise ExternalServiceError("Spotify", "Device is not available")
         
         user = await self.user_repository.get_by_id(device.user_id)
         if user is None:
@@ -46,6 +44,9 @@ class PlayService:
         if vinyl.spotify_uri is None:
             logger.info("Vinyl pending configuration", extra={"vinyl_id": vinyl.id, "tag_id": tag_id})
             raise VinylPending(vinyl.id, user.id)
+
+        if device.spotify_device_id is None:
+            raise ExternalServiceError("Spotify", "Device is not available")
 
         logger.info("Playing vinyl", extra={"vinyl_id": vinyl.id, "spotify_uri": vinyl.spotify_uri, "device_id": device_id})
         return await self.spotify_service.play(user, device.spotify_device_id, vinyl.spotify_uri, song_index, ms_delay)

@@ -52,9 +52,9 @@ class DeviceService:
 
         logger.info("Heartbeat received", extra={"device_id": device_id, "user_id": user.id})
 
-        access_token = await self.spotify_service.ensure_fresh_token(user)
-        spotify_device_id = await self.spotify_service.get_spotify_device_id(access_token, device.name)
+        spotify_device_id = await self.spotify_service.get_spotify_device_id(user, device.name)
         await self.device_repository.update_heartbeat(device_id, spotify_device_id)
+
 
         logger.info("Spotify device ID cached", extra={"device_id": device_id, "spotify_device_id": spotify_device_id})
         return DeviceHeartbeatResponse(
