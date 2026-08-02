@@ -1,8 +1,10 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 
+from app.config import settings
 from app.database import engine
 from app.logger import get_logger
 from app.controllers.auth_controller import router as auth_router
@@ -26,6 +28,15 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Orpheus API", lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.allowed_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 
 @app.get("/ping")

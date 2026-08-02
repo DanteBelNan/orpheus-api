@@ -24,6 +24,13 @@ class Settings(BaseSettings):
     jwt_expire_hours: int = 12
     device_api_key: str
 
+    #CORS
+    cors_origins: str
+
+    @property
+    def allowed_origins(self) -> list[str]:
+        return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
+
 
     @property
     def database_url(self) -> str:
