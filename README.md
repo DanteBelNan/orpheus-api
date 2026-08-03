@@ -209,6 +209,7 @@ Documentación automática en `http://localhost:8000/docs`
 | `MYSQL_DATABASE` | Nombre de la base de datos (ej. `orpheus`) |
 | `SECRET_KEY` | Para firma de JWT (HS256) |
 | `JWT_EXPIRE_HOURS` | Duración del JWT en horas (por defecto: 12) |
+| `CORS_ORIGINS` | Origins permitidos para el frontend, separados por coma (ej. `http://localhost:5173,http://127.0.0.1:5173`) |
 
 ---
 
@@ -225,9 +226,9 @@ El `SpotifyClient.play()` ya acepta `song_index` y `ms_delay` como parámetros o
 - Implementado: OAuth Spotify con `/auth/login`, `/auth/exchange` y `/auth/me`.
 - Implementado: sesión con JWT en cookie `httpOnly` y `SameSite=Lax`; falta activar `Secure` para producción.
 - Implementado: endpoints de dispositivos, vinilos, búsqueda de recursos y `/play`.
-- Gap del MVP: `/play` debe usar el `spotify_device_id` cacheado en `devices.spotify_device_id` al llamar a Spotify. El código actual todavía recibe la MAC address como `device_id` del request y debe resolverla al ID interno de Spotify antes de ejecutar `PUT /v1/me/player/play`.
-- Gap del MVP: si Spotify rechaza playback por dispositivo no encontrado/restringido, el backend debe refrescar `spotify_device_id` desde `GET /v1/me/player/devices` y reintentar una vez.
-- Gap del MVP: `GET /devices/{device_id}` debe validar que el dispositivo consultado pertenezca al usuario autenticado.
+- Implementado: `/play` resuelve la MAC address al dispositivo registrado, usa el `spotify_device_id` cacheado y exige que exista solo cuando el vinilo ya está configurado.
+- Implementado: `GET /devices/{device_id}` valida que el dispositivo consultado pertenezca al usuario autenticado.
+- Gap Post-MVP: si Spotify rechaza playback por dispositivo no encontrado/restringido, el backend debe refrescar `spotify_device_id` desde `GET /v1/me/player/devices` y reintentar una vez.
 
 ---
 

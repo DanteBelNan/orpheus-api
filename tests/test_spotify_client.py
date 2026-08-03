@@ -137,7 +137,7 @@ class TestSearch:
         call_params = mock_client.get.call_args.kwargs["params"]
         assert call_params["q"] == "abbey road"
         assert call_params["type"] == "album,playlist"
-        assert call_params["limit"] == 20
+        assert call_params["limit"] == 10
 
     async def test_raises_spotify_error_on_failure(self, spotify_client):
         mock_client = _build_error_client("get", 429, "API rate limit exceeded")
