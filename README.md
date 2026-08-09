@@ -106,6 +106,13 @@ Llamado por la Pi en cada arranque. Actualiza `last_seen` y refresca el `spotify
 - **Respuesta:** `{ "status": "ok", "spotify_device_id": "abc123" }`
 - **Respuesta (key inválida):** 401
 
+#### `GET /devices/auth?device_id=...`
+Llamado por el binario al boot y cada 55 minutos para obtener un access token fresco sin almacenar credenciales en el dispositivo. El backend refresca el token del usuario asociado al device si está por vencer y devuelve el token vigente.
+- **Auth:** `X-Device-Key` header
+- **Respuesta:** `{ "access_token": "BQC...", "device_name": "Orpheus", "expires_at": "2026-08-09T15:00:00" }` → 200
+- **Respuesta (device no registrado):** 404
+- **Respuesta (error de Spotify):** 502
+
 ---
 
 ### Resources
@@ -162,9 +169,17 @@ Endpoint principal. Llamado por la Raspberry Pi al leer un tag. Implementa la l�
   5. **Caso 3 — Tag configurado:** token middleware refresca el `access_token` del device owner si está vencido → llama `PUT /v1/me/player/play` en Spotify con el `spotify_uri` del vinilo y el `spotify_device_id` cacheado del dispositivo → responde 200
 - **Response (nuevo):** `{ "status": "registered", "vinyl_id": 7 }` → 201
 - **Response (pendiente):** `{ "status": "pending", "vinyl_id": 7 }` → 202
-- **Response (reproduciendo):** `{ "status": "playing", "vinyl": "..." }` → 200
+- **Response (reproduciendo):** `{ "status": "playing", "vinyl": { "name": "...", "album": "...", "art_url": "...", "spotify_uri": "..." } }` → 200
 - **Response (device no registrado):** `{ "detail": "Device not found" }` → 404 *(Pi reproduce sonido de error)*
 - **Response (Spotify o Raspotify offline):** `{ "detail": "..." }` → 502 *(Pi reproduce sonido de error)*
+
+#### `GET /play/state?device_id=...`
+Devuelve el estado de reproducción actual del dispositivo consultando directamente la API de Spotify. Usado por el display del binario para mostrar el track en curso.
+- **Auth:** `X-Device-Key` header
+- **Respuesta:** `{ "is_playing": true, "track_name": "Money", "artist_name": "Pink Floyd", "album_name": "The Dark Side of the Moon", "current_track": 6, "total_tracks": 10, "duration": 382000, "progress": 30000 }` → 200
+- **Respuesta (nada reproduciéndose):** misma estructura con `is_playing: false` y campos en defaults
+- **Respuesta (device no registrado):** 404
+- **Respuesta (error de Spotify):** 502
 
 ---
 
