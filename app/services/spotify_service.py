@@ -37,6 +37,10 @@ class SpotifyService():
             return await func(self, access_token, *args, **kwargs)
         return wrapper
     
+    @with_fresh_token #we just use the decorator to get the refreshed token
+    async def refresh_token(self, _access_token: str) -> str:
+        return _access_token
+    
     #gets the spotify_device_id from the device
     @with_fresh_token
     async def get_spotify_device_id(self, _access_token: str, device_name: str) -> str | None:

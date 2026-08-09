@@ -12,8 +12,6 @@ class DeviceResponse(BaseModel):
     last_seen: datetime | None
     created_at: datetime
 
-
-
 class DevicesListResponse(BaseModel):
     devices: list[DeviceResponse]
     amount: int
@@ -28,5 +26,10 @@ class DeviceHeartbeatRequest(BaseModel):
 class DeviceHeartbeatResponse(BaseModel):
     status: str
     spotify_device_id: str | None
+
+class DeviceAuthResponse(BaseModel):
+    access_token: str
+    device_name: str
+    expires_at: datetime
 
     

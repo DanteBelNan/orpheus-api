@@ -1,6 +1,6 @@
 from app.repositories.device_repository import DeviceRepository
 from app.repositories.user_repository import UserRepository
-from app.dtos.device_dto import DeviceResponse, DevicesListResponse, DeviceHeartbeatResponse
+from app.dtos.device_dto import DeviceResponse, DevicesListResponse, DeviceHeartbeatResponse, DeviceAuthResponse
 from app.exceptions.device_exception import DeviceAlreadyRegisteredError, DeviceNotFoundError, DeviceForbiddenError
 from app.exceptions.user_exception import UserNotFoundError
 from app.services.spotify_service import SpotifyService
@@ -60,4 +60,21 @@ class DeviceService:
         return DeviceHeartbeatResponse(
             status="ok",
             spotify_device_id=spotify_device_id
+        )
+    
+    async def get_credentials(self, device_id: str) -> DeviceAuthResponse:
+        device = await self.device_repository.get_by_device_id(device_id)
+        if device is None:
+            raise DeviceNotFoundError(device_id)
+        user = await self.user_repository.get_by_id(device.user_id)
+        if user is None:
+            raise UserNotFoundError(device.user_id) 
+        
+        access_token = await self.spotify_service.refresh_token(user)
+        updated_user = await self.user_repository.get_by_id(device.user_id)
+
+        return DeviceAuthResponse(
+            access_token=access_token,
+            device_name=device.name,
+            expires_at=updated_user.token_expires_at #warning, there can be timezone errors if we use a datetime!!
         )

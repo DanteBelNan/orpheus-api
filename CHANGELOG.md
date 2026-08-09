@@ -14,6 +14,11 @@ All notable changes to the Orpheus API are documented here.
 ## [Unreleased]
 
 ### Added
+- `GET /devices/auth` — nuevo endpoint que el binario de la Raspberry llama al boot y cada 55 minutos. Devuelve `access_token` fresco, `device_name` y `expires_at`. Elimina la necesidad de almacenar credenciales de Spotify en el dispositivo.
+- `SpotifyService.refresh_token()` — método con `@with_fresh_token` que retorna el access_token vigente (o recién refrescado). Permite obtener el token sin ejecutar ninguna operación de Spotify.
+- `DeviceAuthResponse` DTO en `device_dto.py`.
+- `DeviceService.get_credentials()` — resuelve device → user → refresca token → re-fetch user para `expires_at` actualizado.
+- 6 tests en `TestGetCredentials` cubriendo respuesta correcta, re-fetch de user, y casos de error.
 - `GET /play/state` — nuevo endpoint que devuelve el estado de reproducción actual consultando la API de Spotify (`is_playing`, `track_name`, `artist_name`, `album_name`, `current_track`, `total_tracks`, `duration`, `progress`). Requiere `device_id` como query param y `X-Device-Key` header.
 - `SpotifyClient.state()` — nuevo método que llama a `GET /v1/me/player` de Spotify. Maneja 204 (nada reproduciendo) retornando `{}` en lugar de fallar.
 - `SpotifyService.state()` — nuevo método con `@with_fresh_token`, mapea la respuesta de Spotify a `StateResponse`.

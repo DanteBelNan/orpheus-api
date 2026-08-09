@@ -9,7 +9,7 @@ from app.exceptions.base_exception import NotFoundError, AlreadyExistsError, Ext
 from app.repositories.device_repository import DeviceRepository
 from app.repositories.user_repository import UserRepository
 
-from app.dtos.device_dto import DeviceRegisterRequest, DeviceResponse, DevicesListResponse, DeviceHeartbeatResponse, DeviceHeartbeatRequest
+from app.dtos.device_dto import DeviceRegisterRequest, DeviceResponse, DevicesListResponse, DeviceHeartbeatResponse, DeviceHeartbeatRequest, DeviceAuthResponse
 
 from app.services.device_service import DeviceService
 from app.services.spotify_service import SpotifyService
@@ -84,3 +84,17 @@ async def heartbeat(
         raise HTTPException(status_code=404,detail=str(e))
     except ExternalServiceError as e:
         raise HTTPException(status_code=502,detail=str(e))
+    
+@router.get("/auth", response_model=DeviceAuthResponse, status_code=200)
+async def auth(
+    device_id: str,
+    service: DeviceService = Depends(get_device_service),
+    _: None = Depends(verify_device_key),
+):
+    try:
+        return await service.get_credentials(device_id)
+    except NotFoundError as e:
+        raise HTTPException(status_code=404,detail=str(e))
+    except ExternalServiceError as e:
+        raise HTTPException(status_code=502,detail=str(e))
+    

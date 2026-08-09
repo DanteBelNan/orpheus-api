@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
@@ -35,6 +35,7 @@ def mock_spotify_service():
     service = MagicMock()
     service.ensure_fresh_token = AsyncMock()
     service.get_spotify_device_id = AsyncMock()
+    service.refresh_token = AsyncMock()
     return service
 
 
@@ -175,6 +176,76 @@ class TestCreateDevice:
                 user_id=1,
                 name="Orpheus #1",
             )
+
+
+class TestGetCredentials:
+    async def test_returns_auth_response_with_token_and_device_name(
+        self, device_service, mock_device_repository, mock_user_repository,
+        mock_spotify_service, mock_db_device, mock_db_user
+    ):
+        mock_device_repository.get_by_device_id.return_value = mock_db_device
+        mock_user_repository.get_by_id.return_value = mock_db_user
+        mock_spotify_service.refresh_token.return_value = "fresh_access_token"
+
+        result = await device_service.get_credentials("b8:27:eb:3a:11:cc")
+
+        assert result.access_token == "fresh_access_token"
+        assert result.device_name == "Orpheus #1"
+
+    async def test_calls_refresh_token_with_user(
+        self, device_service, mock_device_repository, mock_user_repository,
+        mock_spotify_service, mock_db_device, mock_db_user
+    ):
+        mock_device_repository.get_by_device_id.return_value = mock_db_device
+        mock_user_repository.get_by_id.return_value = mock_db_user
+        mock_spotify_service.refresh_token.return_value = "fresh_access_token"
+
+        await device_service.get_credentials("b8:27:eb:3a:11:cc")
+
+        mock_spotify_service.refresh_token.assert_called_once_with(mock_db_user)
+
+    async def test_returns_expires_at_from_refetched_user(
+        self, device_service, mock_device_repository, mock_user_repository,
+        mock_spotify_service, mock_db_device, mock_db_user
+    ):
+        updated_user = MagicMock()
+        updated_user.id = 1
+        updated_user.token_expires_at = datetime(2026, 8, 9, 14, 0, 0)
+
+        mock_device_repository.get_by_device_id.return_value = mock_db_device
+        mock_user_repository.get_by_id.side_effect = [mock_db_user, updated_user]
+        mock_spotify_service.refresh_token.return_value = "fresh_access_token"
+
+        result = await device_service.get_credentials("b8:27:eb:3a:11:cc")
+
+        assert result.expires_at == datetime(2026, 8, 9, 14, 0, 0)
+
+    async def test_refetches_user_after_token_refresh(
+        self, device_service, mock_device_repository, mock_user_repository,
+        mock_spotify_service, mock_db_device, mock_db_user
+    ):
+        mock_device_repository.get_by_device_id.return_value = mock_db_device
+        mock_user_repository.get_by_id.return_value = mock_db_user
+        mock_spotify_service.refresh_token.return_value = "fresh_access_token"
+
+        await device_service.get_credentials("b8:27:eb:3a:11:cc")
+
+        assert mock_user_repository.get_by_id.call_count == 2
+
+    async def test_raises_device_not_found(self, device_service, mock_device_repository):
+        mock_device_repository.get_by_device_id.return_value = None
+
+        with pytest.raises(DeviceNotFoundError):
+            await device_service.get_credentials("00:00:00:00:00:00")
+
+    async def test_raises_user_not_found(
+        self, device_service, mock_device_repository, mock_user_repository, mock_db_device
+    ):
+        mock_device_repository.get_by_device_id.return_value = mock_db_device
+        mock_user_repository.get_by_id.return_value = None
+
+        with pytest.raises(UserNotFoundError):
+            await device_service.get_credentials("b8:27:eb:3a:11:cc")
 
 
 class TestProcessHeartbeat:
