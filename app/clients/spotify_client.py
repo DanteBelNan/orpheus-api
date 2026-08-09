@@ -118,5 +118,23 @@ class SpotifyClient():
                 detail = e.response.json().get("error", {}).get("message", e.response.text)
             except Exception:
                 detail = e.response.text
-            raise SpotifyError(f"[Spotify API] failed to play resource ({e.response.status_code}): {detail}")            
+            raise SpotifyError(f"[Spotify API] failed to play resource ({e.response.status_code}): {detail}")     
+
+    async def state(self, access_token: str) -> dict:
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.get(
+                    f"{settings.spotify_api_url}/v1/me/player",
+                    headers={"Authorization": f"Bearer {access_token}"},
+                )
+                if response.status_code == 204:
+                    return {}
+                response.raise_for_status()
+                return response.json()
+        except httpx.HTTPStatusError as e:
+            try:
+                detail = e.response.json().get("error", {}).get("message", e.response.text)
+            except Exception:
+                detail = e.response.text
+            raise SpotifyError(f"[Spotify API] failed to get state of resource ({e.response.status_code}): {detail}")  
 

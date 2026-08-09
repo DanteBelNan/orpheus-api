@@ -21,6 +21,7 @@ def mock_vinyl_repository():
 def mock_spotify_service():
     service = MagicMock()
     service.play = AsyncMock()
+    service.state = AsyncMock()
     return service
 
 
@@ -274,6 +275,72 @@ class TestPlayConfiguredVinyl:
             await play_service.play("b8:27:eb:xx", "04:A2:B3:C4")
         except (VinylCreated, VinylPending):
             pytest.fail("Should not raise VinylCreated or VinylPending for configured vinyl")
+
+
+class TestPlayState:
+    async def test_calls_spotify_service_with_user(
+        self,
+        play_service,
+        mock_device_repository,
+        mock_user_repository,
+        mock_spotify_service,
+        mock_device,
+        mock_user,
+    ):
+        mock_device_repository.get_by_device_id.return_value = mock_device
+        mock_user_repository.get_by_id.return_value = mock_user
+        from app.dtos.play_dto import StateResponse
+        mock_spotify_service.state.return_value = StateResponse(
+            is_playing=True, track_name="Money", album_name="Dark Side",
+            artist_name="Pink Floyd", total_tracks=10, current_track=6,
+            image_url="http://img.jpg", duration=382000, progress=30000,
+        )
+
+        await play_service.state("b8:27:eb:xx")
+
+        mock_spotify_service.state.assert_called_once_with(mock_user)
+
+    async def test_returns_state_from_spotify_service(
+        self,
+        play_service,
+        mock_device_repository,
+        mock_user_repository,
+        mock_spotify_service,
+        mock_device,
+        mock_user,
+    ):
+        mock_device_repository.get_by_device_id.return_value = mock_device
+        mock_user_repository.get_by_id.return_value = mock_user
+        from app.dtos.play_dto import StateResponse
+        expected = StateResponse(
+            is_playing=True, track_name="Money", album_name="Dark Side",
+            artist_name="Pink Floyd", total_tracks=10, current_track=6,
+            image_url="http://img.jpg", duration=382000, progress=30000,
+        )
+        mock_spotify_service.state.return_value = expected
+
+        result = await play_service.state("b8:27:eb:xx")
+
+        assert result.is_playing is True
+        assert result.track_name == "Money"
+        assert result.current_track == 6
+
+    async def test_raises_device_not_found(
+        self, play_service, mock_device_repository
+    ):
+        mock_device_repository.get_by_device_id.return_value = None
+
+        with pytest.raises(DeviceNotFoundError):
+            await play_service.state("unknown-device")
+
+    async def test_raises_user_not_found(
+        self, play_service, mock_device_repository, mock_user_repository, mock_device
+    ):
+        mock_device_repository.get_by_device_id.return_value = mock_device
+        mock_user_repository.get_by_id.return_value = None
+
+        with pytest.raises(UserNotFoundError):
+            await play_service.state("b8:27:eb:xx")
 
 
 class TestPlayDeviceAndUserLookup:

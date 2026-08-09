@@ -12,7 +12,21 @@ All notable changes to the Orpheus API are documented here.
 
 ---
 ## [Unreleased]
----
+
+### Added
+- `GET /play/state` — nuevo endpoint que devuelve el estado de reproducción actual consultando la API de Spotify (`is_playing`, `track_name`, `artist_name`, `album_name`, `current_track`, `total_tracks`, `duration`, `progress`). Requiere `device_id` como query param y `X-Device-Key` header.
+- `SpotifyClient.state()` — nuevo método que llama a `GET /v1/me/player` de Spotify. Maneja 204 (nada reproduciendo) retornando `{}` en lugar de fallar.
+- `SpotifyService.state()` — nuevo método con `@with_fresh_token`, mapea la respuesta de Spotify a `StateResponse`.
+- `PlayService.state()` — nuevo método que resuelve device → user → delega a `SpotifyService`.
+- `StateResponse` DTO en `play_dto.py`.
+- 12 nuevos tests cubriendo `TestState` en `test_spotify_client`, `test_spotify_service` y `test_play_service`.
+
+### Changed
+- `POST /play/` — la respuesta 200 ahora incluye datos del vinilo: `name`, `album`, `art_url`, `spotify_uri`. Permite que el display muestre información inmediata al apoyar un vinilo configurado.
+- `play_service.play()` — ahora retorna el objeto `vinyl` para que el controller pueda incluirlo en la respuesta.
+- `GET /play/state` — `ExternalServiceError` (incluye `SpotifyError`) capturado y mapeado a 502.
+
+
 ## [1.0.2] - 2026-08-02 — CORS, Spotify Search & Play Workflow Adjustments
 
 ### Added

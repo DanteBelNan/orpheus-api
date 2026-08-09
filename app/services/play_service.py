@@ -7,6 +7,7 @@ from app.exceptions.base_exception import ExternalServiceError
 from app.services.spotify_service import SpotifyService
 from app.models.user import User
 from app.exceptions.vinyl_exception import VinylPending, VinylCreated
+from app.exceptions.spotify_exception import SpotifyError
 from app.logger import get_logger
 
 logger = get_logger(__name__)
@@ -49,4 +50,19 @@ class PlayService:
             raise ExternalServiceError("Spotify", "Device is not available")
 
         logger.info("Playing vinyl", extra={"vinyl_id": vinyl.id, "spotify_uri": vinyl.spotify_uri, "device_id": device_id})
-        return await self.spotify_service.play(user, device.spotify_device_id, vinyl.spotify_uri, song_index, ms_delay)
+        await self.spotify_service.play(user, device.spotify_device_id, vinyl.spotify_uri, song_index, ms_delay)
+        return vinyl
+    
+    async def state(self, device_id: str):
+        device = await self.device_repository.get_by_device_id(device_id)
+        if device is None:
+            raise DeviceNotFoundError(device_id)
+        user = await self.user_repository.get_by_id(device.user_id)
+        if user is None:
+            raise UserNotFoundError(device.user_id)
+        logger.info("Request state of device", extra={"device_id": device_id, "user_id": user.id})
+
+        state_response = await self.spotify_service.state(user)
+        return state_response
+
+        

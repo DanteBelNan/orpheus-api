@@ -117,6 +117,55 @@ class TestGetActiveDevices:
         assert "403" in str(exc.value)
 
 
+class TestState:
+    async def test_returns_playback_state(self, spotify_client):
+        mock_client = _build_mock_client("get", {
+            "is_playing": True,
+            "progress_ms": 30000,
+            "item": {"name": "Money", "track_number": 6, "duration_ms": 382000,
+                     "album": {"name": "Dark Side", "total_tracks": 10, "images": []},
+                     "artists": [{"name": "Pink Floyd"}]},
+        })
+
+        with patch("app.clients.spotify_client.httpx.AsyncClient", return_value=mock_client):
+            result = await spotify_client.state("valid_token")
+
+        assert result["is_playing"] is True
+        assert result["item"]["name"] == "Money"
+
+    async def test_returns_empty_dict_when_204(self, spotify_client):
+        mock_response = MagicMock()
+        mock_response.status_code = 204
+        mock_response.raise_for_status = MagicMock()
+        mock_client = AsyncMock()
+        mock_client.__aenter__.return_value = mock_client
+        mock_client.__aexit__.return_value = None
+        mock_client.get = AsyncMock(return_value=mock_response)
+
+        with patch("app.clients.spotify_client.httpx.AsyncClient", return_value=mock_client):
+            result = await spotify_client.state("valid_token")
+
+        assert result == {}
+
+    async def test_sends_bearer_token(self, spotify_client):
+        mock_client = _build_mock_client("get", {"is_playing": False})
+
+        with patch("app.clients.spotify_client.httpx.AsyncClient", return_value=mock_client):
+            await spotify_client.state("my_access_token")
+
+        headers = mock_client.get.call_args.kwargs["headers"]
+        assert headers["Authorization"] == "Bearer my_access_token"
+
+    async def test_raises_spotify_error_on_failure(self, spotify_client):
+        mock_client = _build_error_client("get", 401, "Unauthorized")
+
+        with patch("app.clients.spotify_client.httpx.AsyncClient", return_value=mock_client):
+            with pytest.raises(SpotifyError) as exc:
+                await spotify_client.state("bad_token")
+
+        assert "401" in str(exc.value)
+
+
 class TestSearch:
     async def test_returns_raw_spotify_response(self, spotify_client):
         mock_client = _build_mock_client("get", {

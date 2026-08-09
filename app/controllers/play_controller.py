@@ -47,8 +47,16 @@ async def play(
     _: None = Depends(verify_device_key),
 ):
     try:
-        await play_service.play(body.device_id, body.tag_id)
-        return JSONResponse(status_code=200, content={"status": "playing"})
+        vinyl = await play_service.play(body.device_id, body.tag_id)
+        return JSONResponse(status_code=200, content={
+            "status": "playing", 
+            "vinyl": {
+                    "name": vinyl.name,
+                    "album": vinyl.album_name,
+                    "art_url": vinyl.album_art_url,
+                    "spotify_uri": vinyl.spotify_uri
+                }
+            })
     except VinylCreated as e:
         return JSONResponse(status_code=201, content={"status": "registered", "detail": str(e)})
     except VinylPending as e:
@@ -56,4 +64,18 @@ async def play(
     except ExternalServiceError as e:
         raise HTTPException(status_code=502, detail=str(e))
     except NotFoundError as e:
-        raise HTTPException(status_code=404,detail=str(e))
+        raise HTTPException(status_code=404, detail=str(e))
+    
+@router.get("/state")
+async def play_state(
+    device_id: str,
+    play_service: PlayService = Depends(get_play_service),
+    _: None = Depends(verify_device_key),
+):
+    try:
+        playStatus = await play_service.state(device_id)
+        return JSONResponse(status_code=200, content=playStatus.model_dump())
+    except NotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except ExternalServiceError as e:
+        raise HTTPException(status_code=502, detail=str(e))

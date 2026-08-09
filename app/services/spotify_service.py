@@ -4,6 +4,7 @@ from app.repositories.user_repository import UserRepository
 from app.clients.spotify_client import SpotifyClient
 from app.dtos.resource_dto import ResourceListResponse, ResourceResponse
 from app.logger import get_logger
+from app.dtos.play_dto import StateResponse
 
 logger = get_logger(__name__)
 
@@ -81,5 +82,28 @@ class SpotifyService():
     
     @with_fresh_token
     async def play(self, access_token: str, device_id: str, spotify_uri: str, song_index: int = 0, ms_delay: int = 0):    
-
         return await self.spotify_client.play(access_token,device_id,spotify_uri,song_index,ms_delay)
+    
+    @with_fresh_token
+    async def state(self, access_token: str) -> StateResponse: 
+        raw_state = await self.spotify_client.state(access_token)
+
+        item = raw_state.get("item", {})
+
+        spotify_state = StateResponse(
+            is_playing = raw_state.get("is_playing", False),
+            track_name=item.get("name", "Desconocido"),
+            album_name=item.get("album", {}).get("name", "Desconocido"),
+            # Spotify devuelve una lista de artistas, unimos sus nombres con comas
+            artist_name=", ".join([artist["name"] for artist in item.get("artists", [])]) or "Desconocido",
+            total_tracks=item.get("album", {}).get("total_tracks", 0),
+            current_track=item.get("track_number", 0),
+            # Extraemos la URL de la primera imagen del álbum (suele ser la de mayor resolución)
+            image_url=item.get("album", {}).get("images", [{}])[0].get("url", ""),
+            duration=item.get("duration_ms", 0),
+            progress=raw_state.get("progress_ms", 0)
+        )
+
+        return spotify_state
+
+    

@@ -20,6 +20,7 @@ def mock_spotify_client():
     client.exchange_token = AsyncMock()
     client.get_active_devices = AsyncMock()
     client.search = AsyncMock()
+    client.state = AsyncMock()
     return client
 
 
@@ -144,6 +145,71 @@ class TestGetSpotifyDeviceId:
         result = await spotify_service.get_spotify_device_id(mock_user_fresh_token, "Orpheus #1")
 
         assert result is None
+
+
+class TestState:
+    async def test_returns_state_when_playing(
+        self, spotify_service, mock_spotify_client, mock_user_fresh_token
+    ):
+        mock_spotify_client.state.return_value = {
+            "is_playing": True,
+            "progress_ms": 30000,
+            "item": {
+                "name": "Money",
+                "track_number": 6,
+                "duration_ms": 382000,
+                "album": {
+                    "name": "The Dark Side of the Moon",
+                    "total_tracks": 10,
+                    "images": [{"url": "http://img.jpg"}],
+                },
+                "artists": [{"name": "Pink Floyd"}],
+            },
+        }
+
+        result = await spotify_service.state(mock_user_fresh_token)
+
+        assert result.is_playing is True
+        assert result.track_name == "Money"
+        assert result.artist_name == "Pink Floyd"
+        assert result.current_track == 6
+        assert result.total_tracks == 10
+        assert result.duration == 382000
+        assert result.progress == 30000
+        assert result.image_url == "http://img.jpg"
+
+    async def test_returns_not_playing_when_no_state(
+        self, spotify_service, mock_spotify_client, mock_user_fresh_token
+    ):
+        mock_spotify_client.state.return_value = {}
+
+        result = await spotify_service.state(mock_user_fresh_token)
+
+        assert result.is_playing is False
+        assert result.track_name == "Desconocido"
+        assert result.duration == 0
+
+    async def test_uses_fresh_token(
+        self, spotify_service, mock_spotify_client, mock_user_repository, mock_user_expired_token
+    ):
+        mock_spotify_client.exchange_token.return_value = {
+            "access_token": "new_token",
+            "expires_in": 3600,
+        }
+        mock_spotify_client.state.return_value = {}
+
+        await spotify_service.state(mock_user_expired_token)
+
+        mock_spotify_client.state.assert_called_once_with("new_token")
+
+    async def test_calls_client_with_access_token(
+        self, spotify_service, mock_spotify_client, mock_user_fresh_token
+    ):
+        mock_spotify_client.state.return_value = {}
+
+        await spotify_service.state(mock_user_fresh_token)
+
+        mock_spotify_client.state.assert_called_once_with("valid_access_token")
 
 
 class TestSearch:
