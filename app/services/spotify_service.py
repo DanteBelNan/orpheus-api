@@ -14,6 +14,10 @@ class SpotifyService():
         self.spotify_client = spotify_client
 
     def with_fresh_token(func):
+        """
+        Intercepta el primer argumento (user) y lo reemplaza
+        por un access_token vigente antes de llamar a func.
+        """
         async def wrapper(self, user, *args, **kwargs):
             now = datetime.utcnow()
             if user.token_expires_at - timedelta(seconds=60) <= now:
@@ -35,8 +39,8 @@ class SpotifyService():
     
     #gets the spotify_device_id from the device
     @with_fresh_token
-    async def get_spotify_device_id(self, access_token: str, device_name: str) -> str | None:
-        devices = await self.spotify_client.get_active_devices(access_token)
+    async def get_spotify_device_id(self, _access_token: str, device_name: str) -> str | None:
+        devices = await self.spotify_client.get_active_devices(_access_token)
 
         for spotify_device in devices:
             if spotify_device["name"] == device_name:
@@ -45,8 +49,8 @@ class SpotifyService():
         return None
         
     @with_fresh_token
-    async def search(self, access_token: str, query: str, resource_type: str) -> ResourceListResponse:
-        raw =  await self.spotify_client.search(access_token,query,resource_type)
+    async def search(self, _access_token: str, query: str, resource_type: str) -> ResourceListResponse:
+        raw =  await self.spotify_client.search(_access_token,query,resource_type)
         items = []
 
         albums_data = raw.get('albums') or {}
@@ -81,12 +85,12 @@ class SpotifyService():
 
     
     @with_fresh_token
-    async def play(self, access_token: str, device_id: str, spotify_uri: str, song_index: int = 0, ms_delay: int = 0):    
-        return await self.spotify_client.play(access_token,device_id,spotify_uri,song_index,ms_delay)
+    async def play(self, _access_token: str, device_id: str, spotify_uri: str, song_index: int = 0, ms_delay: int = 0):    
+        return await self.spotify_client.play(_access_token,device_id,spotify_uri,song_index,ms_delay)
     
     @with_fresh_token
-    async def state(self, access_token: str) -> StateResponse: 
-        raw_state = await self.spotify_client.state(access_token)
+    async def state(self, _access_token: str) -> StateResponse: 
+        raw_state = await self.spotify_client.state(_access_token)
 
         item = raw_state.get("item", {})
 
